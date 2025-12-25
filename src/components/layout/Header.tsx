@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 const categories = [
   "Development Boards",
@@ -27,6 +29,8 @@ const navLinks = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const { totalItems, openCart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -58,11 +62,11 @@ export function Header() {
                 Track Order
               </Link>
               <Link
-                to="/account"
+                to={isAuthenticated ? "/account" : "/auth"}
                 className="flex items-center gap-1.5 text-topbar-foreground hover:text-primary transition-colors"
               >
                 <User className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">My Account</span>
+                <span className="hidden sm:inline">{isAuthenticated ? "My Account" : "Login"}</span>
               </Link>
             </div>
           </div>
@@ -106,11 +110,13 @@ export function Header() {
               <Button variant="ghost" size="icon" className="hidden sm:flex">
                 <Heart className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative" onClick={openCart}>
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
-                  0
-                </span>
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
+                    {totalItems}
+                  </span>
+                )}
               </Button>
               <Button
                 variant="ghost"
