@@ -7,8 +7,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 
 export function CartDrawer() {
-  const { items, isOpen, closeCart, removeItem, updateQuantity, totalItems, totalPrice, clearCart } = useCart();
-  const { isAuthenticated, addOrder } = useAuth();
+  const { items, isOpen, closeCart, removeItem, updateQuantity, totalItems, totalPrice } = useCart();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const handleCheckout = () => {
@@ -23,24 +23,8 @@ export function CartDrawer() {
       return;
     }
 
-    // Create order
-    addOrder({
-      items: items.map((item) => ({
-        productId: item.product.id,
-        name: item.product.name,
-        quantity: item.quantity,
-        price: item.product.price,
-      })),
-      total: totalPrice,
-    });
-
-    clearCart();
     closeCart();
-    toast({
-      title: "Order placed!",
-      description: "Your order has been placed successfully.",
-    });
-    navigate("/account");
+    navigate("/checkout");
   };
 
   return (
