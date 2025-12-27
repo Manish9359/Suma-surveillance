@@ -7,14 +7,11 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 
 const categories = [
-  "Development Boards",
-  "Sensors & Modules",
-  "Motors & Drivers",
-  "Power Supply",
-  "3D Printing",
-  "Drone Parts",
-  "Tools & Equipment",
-  "Cables & Connectors",
+  "Smart Switches",
+  "Fan Regulators",
+  "Dimmers",
+  "Smart Plugs",
+  "Accessories",
 ];
 
 const navLinks = [
