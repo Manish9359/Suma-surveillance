@@ -1,48 +1,52 @@
 import { Link } from "react-router-dom";
-import { Cpu, Zap, Settings, Battery, Printer, Plane } from "lucide-react";
+import { Zap, ShieldCheck } from "lucide-react";
 
-const categories = [
+const features = [
   {
-    name: "Development Boards",
-    icon: Cpu,
-    href: "/category/development-boards",
-    color: "from-blue-500 to-blue-600",
-    count: 250,
-  },
-  {
-    name: "Sensors & Modules",
+    name: "230V AC Power",
     icon: Zap,
-    href: "/category/sensors-modules",
+    href: "/shop",
+    color: "from-blue-500 to-blue-600",
+    description: "Standard Home Voltage",
+  },
+  {
+    name: "Shock Proof",
+    icon: ShieldCheck,
+    href: "/shop",
     color: "from-green-500 to-green-600",
-    count: 180,
+    description: "Enhanced Electrical Safety",
   },
   {
-    name: "Motors & Drivers",
-    icon: Settings,
-    href: "/category/motors-drivers",
-    color: "from-orange-500 to-orange-600",
-    count: 120,
-  },
-  {
-    name: "Power Supply",
-    icon: Battery,
-    href: "/category/power-supply",
-    color: "from-yellow-500 to-yellow-600",
-    count: 95,
-  },
-  {
-    name: "3D Printing",
-    icon: Printer,
-    href: "/category/3d-printing",
+    name: "App Control",
+    imgSrc:
+      "https://www.iotics.io/cdn/shop/files/image_17_e9544d98-8654-4bf7-9a47-33b2f9e9a0b5.png?v=1724839225",
+    href: "/shop",
     color: "from-purple-500 to-purple-600",
-    count: 75,
+    description: "Control via Mobile App",
   },
   {
-    name: "Drone Parts",
-    icon: Plane,
-    href: "/category/drone-parts",
+    name: "Voice Control",
+    imgSrc:
+      "https://www.iotics.io/cdn/shop/files/amazon-echo-speaker-sits-wooden-table_1.png?v=1724838508",
+    href: "/shop",
+    color: "from-orange-500 to-orange-600",
+    description: "Alexa & Google Assistant",
+  },
+  {
+    name: "Remote Control",
+    imgSrc:
+      "https://www.iotics.io/cdn/shop/files/image_18.png?v=1724836212",
+    href: "/shop",
     color: "from-cyan-500 to-cyan-600",
-    count: 60,
+    description: "Control from Distance",
+  },
+  {
+    name: "Tempered Glass",
+    imgSrc:
+      "https://www.iotics.io/cdn/shop/files/image_20_d5b03e71-aea3-4992-aa8d-9e370649894f.png?v=1724839225",
+    href: "/shop",
+    color: "from-yellow-500 to-yellow-600",
+    description: "Durable Glass Panel",
   },
 ];
 
@@ -53,38 +57,49 @@ export function CategoryGrid() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-              Shop by Category
+              Smart Switch Features
             </h2>
             <p className="text-muted-foreground mt-1">
-              Find exactly what you need for your next project
+              Designed for modern, safe, and connected homes
             </p>
           </div>
+
           <Link
-            to="/categories"
+            to="/shop"
             className="text-primary hover:text-primary/80 font-medium transition-colors hidden sm:block"
           >
-            View All Categories →
+            Explore Smart Switches →
           </Link>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((category, index) => (
+          {features.map((feature, index) => (
             <Link
-              key={category.name}
-              to={category.href}
+              key={feature.name}
+              to={feature.href}
               className="group relative bg-card rounded-xl border border-border p-4 md:p-6 text-center hover:border-primary hover:shadow-card-hover transition-all duration-300 animate-fade-up"
               style={{ animationDelay: `${index * 0.05}s` }}
             >
               <div
-                className={`inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${category.color} mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300`}
+                className={`inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-xl bg-gradient-to-br ${feature.color} mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300 p-2`}
               >
-                <category.icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                {feature.icon ? (
+                  <feature.icon className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                ) : (
+                  <img
+                    src={feature.imgSrc}
+                    alt={feature.name}
+                    className="w-full h-full object-contain"
+                  />
+                )}
               </div>
+
               <h3 className="font-semibold text-foreground text-sm md:text-base mb-1 group-hover:text-primary transition-colors">
-                {category.name}
+                {feature.name}
               </h3>
+
               <p className="text-xs text-muted-foreground">
-                {category.count}+ Products
+                {feature.description}
               </p>
             </Link>
           ))}
@@ -92,10 +107,10 @@ export function CategoryGrid() {
 
         <div className="mt-6 text-center sm:hidden">
           <Link
-            to="/categories"
+            to="/shop"
             className="text-primary hover:text-primary/80 font-medium transition-colors"
           >
-            View All Categories →
+            Explore Smart Switches →
           </Link>
         </div>
       </div>

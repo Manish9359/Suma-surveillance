@@ -41,14 +41,14 @@ export function Header() {
                 className="flex items-center gap-2 text-topbar-foreground hover:text-primary transition-colors"
               >
                 <Phone className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">1800-123-4567</span>
+                <span className="hidden sm:inline">+91 9011333736</span>
               </a>
               <a
                 href="mailto:support@techparts.com"
                 className="flex items-center gap-2 text-topbar-foreground hover:text-primary transition-colors"
               >
                 <Mail className="h-3.5 w-3.5" />
-                <span className="hidden md:inline">support@techparts.com</span>
+                <span className="hidden md:inline">support@sumasurveillance.com</span>
               </a>
             </div>
             <div className="flex items-center gap-4">
@@ -76,12 +76,12 @@ export function Header() {
           <div className="flex h-16 md:h-20 items-center justify-between gap-4">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
-              <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">T</span>
+              <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center overflow-hidden">
+                <img src="public/suma logo.png" alt="Suma Logo" className="h-full w-full object-cover" />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-lg font-bold text-foreground leading-tight">TechParts</h1>
-                <p className="text-xs text-muted-foreground">Your Ideas, Our Parts</p>
+                <h1 className="text-lg font-bold text-foreground leading-tight">Suma Surveillance Tech</h1>
+                <p className="text-xs text-muted-foreground">Your Home, Our Switches</p>
               </div>
             </Link>
 

@@ -23,12 +23,12 @@ export function HeroBanner() {
             🎉 New Arrivals Available
           </span>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-secondary-foreground mb-4 animate-fade-up" style={{ animationDelay: "0.1s" }}>
-            Electronic Components
+            Smart Switches
             <br />
-            <span className="text-primary">For Every Project</span>
+            <span className="text-primary">For Every Home</span>
           </h1>
           <p className="text-lg text-secondary-foreground/80 mb-8 animate-fade-up" style={{ animationDelay: "0.2s" }}>
-            Get every component you need with just one click. From Arduino to sensors, motors to 3D printing parts - we've got you covered.
+            Control your lights effortlessly with one touch. Easy to install, energy-efficient, and designed to fit seamlessly into your lifestyle.
           </p>
           <div className="flex flex-wrap gap-4 animate-fade-up" style={{ animationDelay: "0.3s" }}>
             <Link to="/shop">
@@ -39,7 +39,7 @@ export function HeroBanner() {
             </Link>
             <Link to="/new-arrivals">
               <Button variant="outline" size="xl" className="bg-secondary-foreground/10 border-secondary-foreground/30 text-secondary-foreground hover:bg-secondary-foreground/20">
-                View New Arrivals
+               🎉 View New Arrivals
               </Button>
             </Link>
           </div>

@@ -4,25 +4,25 @@ import { ArrowRight } from "lucide-react";
 
 const promos = [
   {
-    title: "Arduino Starter Kits",
-    subtitle: "Perfect for beginners",
-    discount: "Up to 30% Off",
+    title: "Smart Wi-Fi Touch Switches",
+    subtitle: "Control lights & appliances remotely",
+    discount: "Starting ₹2000",
     bg: "from-blue-500 to-blue-700",
-    href: "/category/arduino-kits",
+    href: "/shop",
   },
   {
-    title: "3D Printing Supplies",
-    subtitle: "Premium filaments",
-    discount: "Buy 2 Get 1 Free",
+    title: "Automatic Water Level Controller",
+    subtitle: "Save water & energy effortlessly",
+    discount: "Up to 20% Off",
     bg: "from-purple-500 to-purple-700",
-    href: "/category/3d-printing",
+    href: "/shop",
   },
   {
-    title: "Sensor Bundles",
-    subtitle: "Complete sensor packs",
-    discount: "Starting ₹299",
+    title: "Home Automation Solutions",
+    subtitle: "App & voice control for smart living",
+    discount: "Bundle Offers Available",
     bg: "from-green-500 to-green-700",
-    href: "/category/sensors",
+    href: "/shop",
   },
 ];
 
@@ -50,7 +50,6 @@ export function PromoBanner() {
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
-              {/* Decorative circles */}
               <div className="absolute -right-8 -bottom-8 w-32 h-32 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-500" />
               <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10 group-hover:scale-150 transition-transform duration-700" />
             </Link>

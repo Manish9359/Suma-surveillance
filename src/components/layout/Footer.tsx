@@ -59,15 +59,15 @@ export function Footer() {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">T</span>
+                <img src="public/suma logo.png" alt="Suma Logo" className="h-full w-full object-cover" />
               </div>
               <div>
-                <h2 className="text-lg font-bold leading-tight">TechParts</h2>
-                <p className="text-xs text-secondary-foreground/70">Your Ideas, Our Parts</p>
+                <h2 className="text-lg font-bold leading-tight">Suma Surveillance Tech</h2>
+                <p className="text-xs text-secondary-foreground/70">Your Home, Our Switches</p>
               </div>
             </Link>
             <p className="text-sm text-secondary-foreground/70 mb-4 max-w-sm">
-              Your one-stop shop for electronics, robotics, and DIY components. Quality parts for makers, engineers, and hobbyists.
+              Your one-stop shop for Home Automation.
             </p>
             <div className="space-y-2 text-sm">
               <a
@@ -75,14 +75,14 @@ export function Footer() {
                 className="flex items-center gap-2 text-secondary-foreground/70 hover:text-primary transition-colors"
               >
                 <Phone className="h-4 w-4" />
-                1800-123-4567
+                +91 9011333736
               </a>
               <a
                 href="mailto:support@techparts.com"
                 className="flex items-center gap-2 text-secondary-foreground/70 hover:text-primary transition-colors"
               >
                 <Mail className="h-4 w-4" />
-                support@techparts.com
+                support@sumasurveillance.com
               </a>
               <p className="flex items-center gap-2 text-secondary-foreground/70">
                 <MapPin className="h-4 w-4" />
@@ -147,7 +147,7 @@ export function Footer() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-secondary-foreground/70">
-              © 2024 TechParts. All rights reserved.
+              © 2026 Suma Surveillance Tech. All rights reserved.
             </p>
             <div className="flex items-center gap-4">
               <a
