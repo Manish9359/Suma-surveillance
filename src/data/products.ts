@@ -593,6 +593,34 @@ export const products: Product[] = [
       "Material": "Tempered Glass",
       "Max Load": "400W"
     }
+  },
+  {
+    id: "25",
+    name: "Water Level Controller",
+    price: 7080,
+    image: "https://www.iotics.io/cdn/shop/files/0012.png?v=1761643084&width=533",
+    images: [
+      "https://www.iotics.io/cdn/shop/files/0012.png?v=1761643084&width=533",
+      "https://www.iotics.io/cdn/shop/files/Water_Level_Controller_-_Image_1.png?v=1761643793&width=533",
+      "https://www.iotics.io/cdn/shop/files/Frame_352.png?v=1761643855&width=533",
+      "https://www.iotics.io/cdn/shop/files/Water_Level_Controller_-_Wiring.png?v=1761643899&width=533"
+    ],
+    rating: 4.9,
+    reviews: 42,
+    badge: "new",
+    inStock: true,
+    category: "Water Level Controller",
+    isNewArrival: true,
+    description: "Automatic water level controller with dry run protection. No need for manual monitoring; the system works on its own. Safeguards your pump from running without water, optimises pump operation, reducing electricity consumption.",
+    specifications: {
+      "Power Source": "AC 240V 50Hz",
+      "Max Load": "Single Phase(1Φ), 1 HP Motor",
+      "Self-Consumption": "~1.6W",
+      "Operating Temp": "-10°C to +55°C",
+      "Dimension": "120mm x 90mm x 38mm",
+      "Enclosure Material": "ABS",
+      "Net Weight": "0.24kg"
+    }
   }
 ];
 
@@ -601,6 +629,7 @@ export const categories = [
   "Fan Regulators",
   "Dimmers",
   "Smart Plugs",
+  "Water Level Controller",
   "Accessories"
 ];
 

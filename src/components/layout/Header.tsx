@@ -11,6 +11,7 @@ const categories = [
   "Fan Regulators",
   "Dimmers",
   "Smart Plugs",
+  "Water Level Controller",
   "Accessories",
 ];
 
@@ -37,14 +38,14 @@ export function Header() {
           <div className="flex h-10 items-center justify-between text-sm">
             <div className="flex items-center gap-6">
               <a
-                href="tel:1800-123-4567"
+                href="tel:+919011333736"
                 className="flex items-center gap-2 text-topbar-foreground hover:text-primary transition-colors"
               >
                 <Phone className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">+91 9011333736</span>
               </a>
               <a
-                href="mailto:support@techparts.com"
+                href="mailto:support@sumasurveillance.com"
                 className="flex items-center gap-2 text-topbar-foreground hover:text-primary transition-colors"
               >
                 <Mail className="h-3.5 w-3.5" />
@@ -77,7 +78,7 @@ export function Header() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
               <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center overflow-hidden">
-                <img src="public/suma logo.png" alt="Suma Logo" className="h-full w-full object-cover" />
+                <img src="/Suma logo.png" alt="Suma Logo" className="h-full w-full object-cover" />
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-lg font-bold text-foreground leading-tight">Suma Surveillance Tech</h1>

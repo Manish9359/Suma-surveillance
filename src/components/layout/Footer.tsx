@@ -5,25 +5,25 @@ import { Button } from "@/components/ui/button";
 
 const footerLinks = {
   shop: [
-    { label: "Development Boards", href: "/category/development-boards" },
-    { label: "Sensors & Modules", href: "/category/sensors-modules" },
-    { label: "Motors & Drivers", href: "/category/motors-drivers" },
-    { label: "Power Supply", href: "/category/power-supply" },
-    { label: "3D Printing", href: "/category/3d-printing" },
+    { label: "Smart Switches", href: "/shop" },
+    { label: "Fan Regulators", href: "/shop" },
+    { label: "Dimmers", href: "/shop" },
+    { label: "Smart Plugs", href: "/shop" },
+    { label: "Water Level Controller", href: "/shop" },
   ],
   support: [
-    { label: "Help Center", href: "/help" },
+    { label: "Help Center", href: "/contact" },
     { label: "Track Order", href: "/orders" },
-    { label: "Shipping Info", href: "/shipping" },
-    { label: "Returns", href: "/returns" },
+    { label: "Shipping Info", href: "/contact" },
+    { label: "Returns", href: "/contact" },
     { label: "Contact Us", href: "/contact" },
   ],
   company: [
-    { label: "About Us", href: "/about" },
-    { label: "Careers", href: "/careers" },
-    { label: "Blog", href: "/blog" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
+    { label: "About Us", href: "/contact" },
+    { label: "New Arrivals", href: "/new-arrivals" },
+    { label: "Shop", href: "/shop" },
+    { label: "Privacy Policy", href: "/contact" },
+    { label: "Terms of Service", href: "/contact" },
   ],
 };
 
@@ -58,8 +58,8 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-                <img src="public/suma logo.png" alt="Suma Logo" className="h-full w-full object-cover" />
+              <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center overflow-hidden">
+                <img src="/Suma logo.png" alt="Suma Logo" className="h-full w-full object-cover" />
               </div>
               <div>
                 <h2 className="text-lg font-bold leading-tight">Suma Surveillance Tech</h2>
@@ -71,23 +71,28 @@ export function Footer() {
             </p>
             <div className="space-y-2 text-sm">
               <a
-                href="tel:1800-123-4567"
+                href="tel:+919011333736"
                 className="flex items-center gap-2 text-secondary-foreground/70 hover:text-primary transition-colors"
               >
                 <Phone className="h-4 w-4" />
                 +91 9011333736
               </a>
               <a
-                href="mailto:support@techparts.com"
+                href="mailto:support@sumasurveillance.com"
                 className="flex items-center gap-2 text-secondary-foreground/70 hover:text-primary transition-colors"
               >
                 <Mail className="h-4 w-4" />
                 support@sumasurveillance.com
               </a>
-              <p className="flex items-center gap-2 text-secondary-foreground/70">
+              <a
+                href="https://maps.google.com/?q=Pune,Maharashtra,India"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-secondary-foreground/70 hover:text-primary transition-colors"
+              >
                 <MapPin className="h-4 w-4" />
-                123 Tech Street, Innovation City
-              </p>
+                Pune, Maharashtra, India
+              </a>
             </div>
           </div>
 
