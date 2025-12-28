@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { Search, SlidersHorizontal, X, Heart, ShoppingCart, Star, Grid3X3, List } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { Search, SlidersHorizontal, X, Heart, ShoppingCart, Star, Grid3X3, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -163,10 +163,15 @@ function Filters({
   );
 }
 
+const PRODUCTS_PER_PAGE = 8;
+
 export default function Shop() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 10000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 15000]);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
@@ -189,15 +194,29 @@ export default function Shop() {
     });
   }, [searchQuery, selectedCategories, priceRange, inStockOnly]);
 
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
+    return filteredProducts.slice(start, start + PRODUCTS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setSearchParams({ page: page.toString() });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   const clearFilters = () => {
     setSearchQuery("");
     setSelectedCategories([]);
-    setPriceRange([0, 10000]);
+    setPriceRange([0, 15000]);
     setInStockOnly(false);
+    setSearchParams({ page: "1" });
   };
 
   const hasActiveFilters =
-    searchQuery || selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 10000 || inStockOnly;
+    searchQuery || selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 15000 || inStockOnly;
 
   return (
     <>
@@ -332,17 +351,54 @@ export default function Shop() {
                     </Button>
                   </div>
                 ) : (
-                  <div
-                    className={
-                      viewMode === "grid"
-                        ? "grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
-                        : "space-y-4"
-                    }
-                  >
-                    {filteredProducts.map((product) => (
-                      <ProductCard key={product.id} product={product} />
-                    ))}
-                  </div>
+                  <>
+                    <div
+                      className={
+                        viewMode === "grid"
+                          ? "grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+                          : "space-y-4"
+                      }
+                    >
+                      {paginatedProducts.map((product) => (
+                        <ProductCard key={product.id} product={product} />
+                      ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-center gap-2 mt-8">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => goToPage(currentPage - 1)}
+                          disabled={currentPage === 1}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                          <Button
+                            key={page}
+                            variant={currentPage === page ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => goToPage(page)}
+                            className="min-w-[40px]"
+                          >
+                            {page}
+                          </Button>
+                        ))}
+                        
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => goToPage(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
