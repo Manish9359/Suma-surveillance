@@ -78,14 +78,14 @@ export function Footer() {
                 +91 9011333736
               </a>
               <a
-                href="mailto:support@sumasurveillance.com"
+                href="mailto:sumacctvservices@gmail.com"
                 className="flex items-center gap-2 text-secondary-foreground/70 hover:text-primary transition-colors"
               >
                 <Mail className="h-4 w-4" />
                 support@sumasurveillance.com
               </a>
               <a
-                href="https://maps.google.com/?q=Pune,Maharashtra,India"
+                href="https://www.google.com/maps/place/Suma+Surveillance+Tech+Pune/@18.6001327,73.813759,661m/data=!3m2!1e3!4b1!4m6!3m5!1s0x3bc2b924c4930dab:0x902a5c7597550e8a!8m2!3d18.6001327!4d73.813759!16s%2Fg%2F11m759zzv_?entry=ttu&g_ep=EgoyMDI1MTIwOS4wIKXMDSoASAFQAw%3D%3D"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-secondary-foreground/70 hover:text-primary transition-colors"

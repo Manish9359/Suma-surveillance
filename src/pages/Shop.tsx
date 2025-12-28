@@ -221,7 +221,7 @@ export default function Shop() {
   return (
     <>
       <Helmet>
-        <title>Shop Electronics & Components | TechParts</title>
+        <title>Shop Smart Switches | Suma Surveillance Tech</title>
         <meta name="description" content="Browse our wide selection of electronics, development boards, sensors, and components for your projects." />
       </Helmet>
       <div className="min-h-screen flex flex-col bg-background">

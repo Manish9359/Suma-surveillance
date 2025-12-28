@@ -61,7 +61,7 @@ export default function Auth() {
     setIsLoading(false);
 
     if (result.success) {
-      toast({ title: "Account created!", description: "Welcome to TechParts!" });
+      toast({ title: "Account created!", description: "Welcome to Suma Survillance!" });
       navigate("/account");
     } else {
       toast({ title: "Signup failed", description: result.error, variant: "destructive" });
@@ -71,15 +71,15 @@ export default function Auth() {
   return (
     <>
       <Helmet>
-        <title>Login / Sign Up | TechParts</title>
-        <meta name="description" content="Login or create an account to shop at TechParts." />
+        <title>Login / Sign Up | Suma Survillance Tech</title>
+        <meta name="description" content="Login or create an account to shop at Suma Survillance Tech." />
       </Helmet>
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <main className="flex-1 flex items-center justify-center py-12 px-4">
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold">Welcome to TechParts</h1>
+              <h1 className="text-2xl font-bold">Welcome to Suma Survillance Tech</h1>
               <p className="text-muted-foreground mt-1">Login or create an account to continue</p>
             </div>
 
@@ -218,10 +218,6 @@ export default function Auth() {
                 <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
               </p>
             </div>
-
-            <p className="text-center text-sm text-muted-foreground mt-6">
-              ⚠️ Demo mode: Data is stored locally in your browser
-            </p>
           </div>
         </main>
         <Footer />

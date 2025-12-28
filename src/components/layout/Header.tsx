@@ -45,7 +45,7 @@ export function Header() {
                 <span className="hidden sm:inline">+91 9011333736</span>
               </a>
               <a
-                href="mailto:support@sumasurveillance.com"
+                href="mailto:sumacctvservices@gmail.com"
                 className="flex items-center gap-2 text-topbar-foreground hover:text-primary transition-colors"
               >
                 <Mail className="h-3.5 w-3.5" />

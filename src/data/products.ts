@@ -573,29 +573,6 @@ export const products: Product[] = [
   },
   {
     id: "24",
-    name: "Smart Fan Regulator with Wi-Fi Control",
-    price: 1890,
-    originalPrice: 2360,
-    image: "https://www.iotics.io/cdn/shop/files/Fan_Regulator.png?v=1726789987&width=533",
-    images: [
-      "https://www.iotics.io/cdn/shop/files/Fan_Regulator.png?v=1726789987&width=533"
-    ],
-    rating: 4.5,
-    reviews: 28,
-    badge: "new",
-    inStock: true,
-    category: "Fan Regulators",
-    isNewArrival: true,
-    description: "Standalone smart fan regulator with 5-speed control. Wi-Fi enabled for remote operation through mobile app.",
-    specifications: {
-      "Control Type": "Touch + Wi-Fi",
-      "Speed Settings": "5",
-      "Material": "Tempered Glass",
-      "Max Load": "400W"
-    }
-  },
-  {
-    id: "25",
     name: "Water Level Controller",
     price: 7080,
     image: "https://www.iotics.io/cdn/shop/files/0012.png?v=1761643084&width=533",
