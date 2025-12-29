@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, X, Heart, ShoppingCart, Star, Grid3X3, List, ChevronLeft, ChevronRight } from "lucide-react";
 import { Header } from "@/components/layout/Header";
@@ -168,19 +168,32 @@ const PRODUCTS_PER_PAGE = 8;
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
+  const urlSearchQuery = searchParams.get("search") || "";
+  const urlCategory = searchParams.get("category") || "";
   
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState(urlSearchQuery);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    urlCategory ? [urlCategory] : []
+  );
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 15000]);
   const [inStockOnly, setInStockOnly] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+
+  // Sync search query and category from URL when it changes
+  useEffect(() => {
+    if (urlSearchQuery) setSearchQuery(urlSearchQuery);
+    if (urlCategory && !selectedCategories.includes(urlCategory)) {
+      setSelectedCategories([urlCategory]);
+    }
+  }, [urlSearchQuery, urlCategory]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
       const matchesSearch =
         searchQuery === "" ||
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchQuery.toLowerCase());
+        product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesCategory =
         selectedCategories.length === 0 || selectedCategories.includes(product.category);
@@ -202,7 +215,9 @@ export default function Shop() {
 
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-      setSearchParams({ page: page.toString() });
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set("page", page.toString());
+      setSearchParams(newParams);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
