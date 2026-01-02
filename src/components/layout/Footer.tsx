@@ -58,16 +58,18 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center overflow-hidden">
-                <img src="/Suma logo.png" alt="Suma Logo" className="h-full w-full object-cover" />
-              </div>
+              <img 
+                src="/Suma logo.png" 
+                alt="Suma Logo" 
+                className="h-10 w-10 rounded-lg object-contain bg-white p-0.5" 
+              />
               <div>
                 <h2 className="text-lg font-bold leading-tight">Suma Surveillance Tech</h2>
-                <p className="text-xs text-secondary-foreground/70">Your Home, Our Switches</p>
+                <p className="text-xs text-secondary-foreground/70">Authorized IOTICS Dealer</p>
               </div>
             </Link>
             <p className="text-sm text-secondary-foreground/70 mb-4 max-w-sm">
-              Your one-stop shop for Home Automation.
+              <strong>Suma Surveillance Tech</strong> is an authorized dealer of <strong>IOTICS Smart Switches</strong>. We bring cutting-edge home automation solutions to transform your living spaces with smart, WiFi-enabled switches.
             </p>
             <div className="space-y-2 text-sm">
               <a
