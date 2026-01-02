@@ -77,20 +77,14 @@ export function Header() {
           <div className="flex h-16 md:h-20 items-center justify-between gap-3 md:gap-4">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
-              <div className="h-10 w-10 md:h-12 md:w-12 rounded-lg overflow-hidden bg-white flex items-center justify-center">
-                <img 
-                  src="/Suma logo.png" 
-                  alt="Suma Surveillance Tech Logo" 
-                  className="h-full w-full object-contain p-0.5"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement!.innerHTML = '<span class="text-primary font-bold text-lg">SST</span>';
-                  }}
-                />
-              </div>
+              <img 
+                src="/Suma logo.png" 
+                alt="Suma Surveillance Tech Logo" 
+                className="h-10 w-10 md:h-12 md:w-12 rounded-lg object-contain bg-white p-0.5"
+              />
               <div className="hidden sm:block">
                 <h1 className="text-base md:text-lg font-bold text-foreground leading-tight">Suma Surveillance Tech</h1>
-                <p className="text-[10px] md:text-xs text-muted-foreground">Your Home, Our Switches</p>
+                <p className="text-[10px] md:text-xs text-muted-foreground">Authorized IOTICS Dealer</p>
               </div>
             </Link>
 
