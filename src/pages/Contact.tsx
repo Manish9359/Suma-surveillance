@@ -83,16 +83,25 @@ export default function Contact() {
       </Helmet>
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
-        <main className="flex-1">
-          <div className="container mx-auto px-4 py-12">
-            {/* Header */}
-            <div className="text-center mb-12">
-              <h1 className="text-3xl md:text-4xl font-bold mb-4">Contact Us</h1>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Have questions about our smart switches or need assistance? We're here to help!
-                Reach out to us through any of the channels below.
-              </p>
-            </div>
+          <main className="flex-1">
+            <div className="container mx-auto px-4 py-12">
+              <section id="about" className="mb-10 scroll-mt-28">
+                <div className="bg-card border border-border rounded-xl p-6 md:p-8">
+                  <h2 className="text-2xl font-semibold mb-2">About Us</h2>
+                  <p className="text-muted-foreground leading-relaxed">
+                    <strong>Suma Surveillance Tech</strong> is an authorized dealer of <strong>IOTICS Smart Switches</strong>, offering genuine products and support for smart home automation.
+                  </p>
+                </div>
+              </section>
+
+              {/* Header */}
+              <div className="text-center mb-12">
+                <h1 className="text-3xl md:text-4xl font-bold mb-4">Contact Us</h1>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Have questions about our smart switches or need assistance? We're here to help!
+                  Reach out to us through any of the channels below.
+                </p>
+              </div>
 
             <div className="grid lg:grid-cols-2 gap-12">
               {/* Contact Form */}
