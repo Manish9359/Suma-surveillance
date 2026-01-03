@@ -14,6 +14,7 @@ import Auth from "./pages/Auth";
 import Account from "./pages/Account";
 import Checkout from "./pages/Checkout";
 import NewArrivals from "./pages/NewArrivals";
+import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/account" element={<Account />} />
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/new-arrivals" element={<NewArrivals />} />
+              <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
