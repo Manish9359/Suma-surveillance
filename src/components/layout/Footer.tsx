@@ -2,6 +2,7 @@ import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "luci
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { BrandMark } from "@/components/layout/BrandMark";
 
 const footerLinks = {
   shop: [
@@ -19,7 +20,7 @@ const footerLinks = {
     { label: "Contact Us", href: "/contact" },
   ],
   company: [
-    { label: "About Us", href: "/contact#about" },
+    { label: "About Us", href: "/about" },
     { label: "New Arrivals", href: "/new-arrivals" },
     { label: "Shop", href: "/shop" },
     { label: "Privacy Policy", href: "/contact" },
@@ -58,13 +59,10 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="h-10 w-10 rounded-lg bg-white border border-border shadow-sm flex items-center justify-center overflow-hidden">
-                <img 
-                  src="/Suma%20logo.png" 
-                  alt="Suma Logo" 
-                  className="h-full w-full object-contain p-0.5" 
-                />
-              </div>
+              <BrandMark
+                className="h-10 w-10 bg-secondary-foreground border-secondary-foreground/15"
+                alt="Suma Surveillance Tech Logo"
+              />
               <div>
                 <h2 className="text-lg font-bold leading-tight">Suma Surveillance Tech</h2>
                 <p className="text-xs text-secondary-foreground/70">Authorized IOTICS Dealer</p>
