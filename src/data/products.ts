@@ -670,14 +670,12 @@ export const products: Product[] = [
   }
 ];
 
-export const categories = [
-  "Smart Switches",
-  "Fan Regulators",
-  "Dimmers",
-  "Smart Plugs",
-  "Water Level Controller",
-  "Accessories"
-];
+// Dynamically extract categories from products
+export const categories = [...new Set(products.map((p) => p.category))].sort();
+
+export function getDeals(): Product[] {
+  return products.filter((p) => p.originalPrice && p.originalPrice > p.price);
+}
 
 export function getProductById(id: string): Product | undefined {
   return products.find((p) => p.id === id);
