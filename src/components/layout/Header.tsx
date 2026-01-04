@@ -6,6 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { SearchBar } from "./SearchBar";
 import { BrandMark } from "./BrandMark";
+import { ThemeToggle } from "./ThemeToggle";
 import { categories } from "@/data/products";
 
 const navLinks = [
@@ -83,6 +84,7 @@ export function Header() {
 
             {/* Actions */}
             <div className="flex items-center gap-1 md:gap-2">
+              <ThemeToggle />
               <Button variant="ghost" size="icon" className="hidden sm:flex h-9 w-9 md:h-10 md:w-10">
                 <Heart className="h-5 w-5" />
               </Button>
