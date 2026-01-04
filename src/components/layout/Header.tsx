@@ -6,15 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { SearchBar } from "./SearchBar";
 import { BrandMark } from "./BrandMark";
-
-const categories = [
-  "Smart Switches",
-  "Fan Regulators",
-  "Dimmers",
-  "Smart Plugs",
-  "Water Level Controller",
-  "Accessories",
-];
+import { categories } from "@/data/products";
 
 const navLinks = [
   { label: "Home", href: "/" },
