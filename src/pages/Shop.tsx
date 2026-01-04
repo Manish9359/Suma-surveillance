@@ -13,18 +13,22 @@ import { products, categories, Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { Helmet } from "react-helmet";
+import { ColorVariants } from "@/components/product/ColorVariants";
 
 function ProductCard({ product }: { product: Product }) {
   const { addItem, openCart } = useCart();
+  const [selectedColor, setSelectedColor] = useState("Black");
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : null;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     addItem(product);
     toast({
       title: "Added to cart",
-      description: `${product.name} has been added to your cart`,
+      description: `${product.name} (${selectedColor}) has been added to your cart`,
     });
     openCart();
   };
@@ -84,6 +88,14 @@ function ProductCard({ product }: { product: Product }) {
             ))}
           </div>
           <span className="text-xs text-muted-foreground">({product.reviews})</span>
+        </div>
+        {/* Color Swatches */}
+        <div className="mb-2" onClick={(e) => e.preventDefault()}>
+          <ColorVariants
+            selectedColor={selectedColor}
+            onColorChange={setSelectedColor}
+            size="sm"
+          />
         </div>
         <div className="flex items-center gap-2">
           <span className="text-lg font-bold text-primary">₹{product.price}</span>
