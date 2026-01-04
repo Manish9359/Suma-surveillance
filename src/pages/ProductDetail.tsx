@@ -10,6 +10,7 @@ import { getProductById, products } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { Helmet } from "react-helmet";
+import { ColorVariants } from "@/components/product/ColorVariants";
 
 const mockReviews = [
   {
@@ -40,6 +41,7 @@ export default function ProductDetail() {
   const product = getProductById(id || "");
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState("Black");
   const { addItem, openCart } = useCart();
 
   if (!product) {
@@ -183,6 +185,15 @@ export default function ProductDetail() {
                   ) : (
                     <span className="text-red-600 font-medium">✗ Out of Stock</span>
                   )}
+                </div>
+
+                {/* Color Variants */}
+                <div className="mb-6">
+                  <p className="text-sm font-medium mb-3">Color: <span className="text-muted-foreground">{selectedColor}</span></p>
+                  <ColorVariants
+                    selectedColor={selectedColor}
+                    onColorChange={setSelectedColor}
+                  />
                 </div>
 
                 {/* Description */}

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartDrawer } from "@/components/cart/CartDrawer";
@@ -31,6 +32,7 @@ const App = () => (
           <CartProvider>
             <Sonner />
             <CartDrawer />
+            <WhatsAppButton />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/shop" element={<Shop />} />
