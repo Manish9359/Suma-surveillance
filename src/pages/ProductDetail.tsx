@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProductById, products } from "@/data/products";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { toast } from "@/hooks/use-toast";
 import { Helmet } from "react-helmet";
 import { ColorVariants } from "@/components/product/ColorVariants";
@@ -43,6 +44,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState("Black");
   const { addItem, openCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
 
   if (!product) {
     return (
@@ -73,6 +75,16 @@ export default function ProductDetail() {
       description: `${quantity}x ${product.name} has been added to your cart`,
     });
     openCart();
+  };
+
+  const handleToggleWishlist = () => {
+    toggleWishlist(product);
+    toast({
+      title: isInWishlist(product.id) ? "Removed from wishlist" : "Added to wishlist",
+      description: isInWishlist(product.id)
+        ? `${product.name} has been removed from your wishlist`
+        : `${product.name} has been added to your wishlist`,
+    });
   };
 
   const relatedProducts = products
@@ -229,8 +241,13 @@ export default function ProductDetail() {
                     <ShoppingCart className="h-5 w-5" />
                     Add to Cart
                   </Button>
-                  <Button variant="outline" size="icon" className="h-12 w-12">
-                    <Heart className="h-5 w-5" />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className={`h-12 w-12 ${isInWishlist(product.id) ? "text-red-500 border-red-500" : ""}`}
+                    onClick={handleToggleWishlist}
+                  >
+                    <Heart className={`h-5 w-5 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
                   </Button>
                 </div>
 

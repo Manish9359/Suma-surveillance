@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { SearchBar } from "./SearchBar";
 import { BrandMark } from "./BrandMark";
 import { ThemeToggle } from "./ThemeToggle";
@@ -24,6 +25,7 @@ export function Header() {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const { totalItems, openCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { itemCount: wishlistCount } = useWishlist();
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -85,9 +87,16 @@ export function Header() {
             {/* Actions */}
             <div className="flex items-center gap-1 md:gap-2">
               <ThemeToggle />
-              <Button variant="ghost" size="icon" className="hidden sm:flex h-9 w-9 md:h-10 md:w-10">
-                <Heart className="h-5 w-5" />
-              </Button>
+              <Link to="/wishlist">
+                <Button variant="ghost" size="icon" className="hidden sm:flex h-9 w-9 md:h-10 md:w-10 relative">
+                  <Heart className="h-5 w-5" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-badge-sale text-white text-xs flex items-center justify-center font-medium">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
               <Button variant="ghost" size="icon" className="relative h-9 w-9 md:h-10 md:w-10" onClick={openCart}>
                 <ShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (

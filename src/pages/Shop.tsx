@@ -11,12 +11,14 @@ import { Slider } from "@/components/ui/slider";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { products, categories, Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 import { toast } from "@/hooks/use-toast";
 import { Helmet } from "react-helmet";
 import { ColorVariants } from "@/components/product/ColorVariants";
 
 function ProductCard({ product }: { product: Product }) {
   const { addItem, openCart } = useCart();
+  const { isInWishlist, toggleWishlist } = useWishlist();
   const [selectedColor, setSelectedColor] = useState("Black");
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -31,6 +33,18 @@ function ProductCard({ product }: { product: Product }) {
       description: `${product.name} (${selectedColor}) has been added to your cart`,
     });
     openCart();
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product);
+    toast({
+      title: isInWishlist(product.id) ? "Removed from wishlist" : "Added to wishlist",
+      description: isInWishlist(product.id)
+        ? `${product.name} has been removed from your wishlist`
+        : `${product.name} has been added to your wishlist`,
+    });
   };
 
   return (
@@ -56,8 +70,13 @@ function ProductCard({ product }: { product: Product }) {
           {discount && <Badge variant="secondary">-{discount}%</Badge>}
         </div>
         <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button variant="secondary" size="icon-sm" className="rounded-full shadow-md">
-            <Heart className="h-4 w-4" />
+          <Button
+            variant="secondary"
+            size="icon-sm"
+            className={`rounded-full shadow-md ${isInWishlist(product.id) ? "text-red-500" : ""}`}
+            onClick={handleToggleWishlist}
+          >
+            <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
           </Button>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent translate-y-full group-hover:translate-y-0 transition-transform">
