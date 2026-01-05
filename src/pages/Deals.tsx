@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart, Star, Percent, Tag } from "lucide-react";
+import { ShoppingCart, Star, Tag } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,6 @@ function DealCard({ product }: { product: Product }) {
         </Link>
         <div className="absolute top-3 left-3">
           <Badge className="bg-badge-sale text-white text-lg px-3 py-1">
-            <Percent className="h-4 w-4 mr-1" />
             {discount}% OFF
           </Badge>
         </div>
@@ -121,7 +120,6 @@ export default function Deals() {
                 Limited time discounts on premium IOTICS Smart Switches
               </p>
               <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-6 py-2">
-                <Percent className="h-5 w-5" />
                 <span className="font-semibold">{deals.length} products on sale • Potential savings up to ₹{totalSavings}</span>
               </div>
             </div>
