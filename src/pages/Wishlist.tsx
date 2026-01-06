@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 import { toast } from "@/hooks/use-toast";
-import { Helmet } from "react-helmet";
+import { SEOHead } from "@/components/seo/SEOHead";
 import { Product } from "@/data/products";
 
 function WishlistCard({ product }: { product: Product }) {
@@ -31,13 +31,16 @@ function WishlistCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-product-hover transition-all duration-300">
+    <article className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-product-hover transition-all duration-300">
       <div className="relative aspect-square overflow-hidden bg-muted">
-        <Link to={`/product/${product.id}`}>
+        <Link to={`/product/${product.id}`} aria-label={`View ${product.name} details`}>
           <img
             src={product.image}
-            alt={product.name}
+            alt={`${product.name} - ${product.category} smart switch`}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+            width={300}
+            height={300}
           />
         </Link>
         <Button
@@ -45,8 +48,9 @@ function WishlistCard({ product }: { product: Product }) {
           size="icon"
           className="absolute top-3 right-3 bg-background/80 hover:bg-destructive hover:text-white"
           onClick={handleRemove}
+          aria-label={`Remove ${product.name} from wishlist`}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
         </Button>
         {product.originalPrice && product.originalPrice > product.price && (
           <div className="absolute top-3 left-3">
@@ -63,8 +67,8 @@ function WishlistCard({ product }: { product: Product }) {
           </h3>
         </Link>
         <p className="text-xs text-muted-foreground mb-2">{product.category}</p>
-        <div className="flex items-center gap-1 mb-3">
-          <div className="flex items-center">
+        <div className="flex items-center gap-1 mb-3" aria-label={`Rating: ${product.rating} out of 5 stars`}>
+          <div className="flex items-center" role="img" aria-label={`${product.rating} stars`}>
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
@@ -73,6 +77,7 @@ function WishlistCard({ product }: { product: Product }) {
                     ? "text-yellow-400 fill-yellow-400"
                     : "text-muted-foreground"
                 }`}
+                aria-hidden="true"
               />
             ))}
           </div>
@@ -80,9 +85,9 @@ function WishlistCard({ product }: { product: Product }) {
         </div>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-primary">₹{product.price}</span>
+            <span className="text-xl font-bold text-primary">₹{product.price.toLocaleString("en-IN")}</span>
             {product.originalPrice && (
-              <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice}</span>
+              <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice.toLocaleString("en-IN")}</span>
             )}
           </div>
         </div>
@@ -90,12 +95,13 @@ function WishlistCard({ product }: { product: Product }) {
           className="w-full gap-2" 
           disabled={!product.inStock} 
           onClick={handleAddToCart}
+          aria-label={product.inStock ? `Add ${product.name} to cart` : "Out of stock"}
         >
-          <ShoppingCart className="h-4 w-4" />
+          <ShoppingCart className="h-4 w-4" aria-hidden="true" />
           {product.inStock ? "Add to Cart" : "Out of Stock"}
         </Button>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -104,32 +110,34 @@ export default function Wishlist() {
 
   return (
     <>
-      <Helmet>
-        <title>My Wishlist | Suma Surveillance Tech</title>
-        <meta name="description" content="View and manage your saved products" />
-      </Helmet>
+      <SEOHead
+        title="My Wishlist | Suma Surveillance Tech"
+        description="View and manage your saved smart switches. Add your favorite IOTICS products to cart and checkout when ready."
+        canonicalUrl="/wishlist"
+        noIndex={true}
+      />
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <main className="flex-1">
           {/* Hero Banner */}
-          <section className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12 md:py-16">
+          <header className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12 md:py-16">
             <div className="container mx-auto px-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <Heart className="h-8 w-8" />
+                <Heart className="h-8 w-8" aria-hidden="true" />
                 <h1 className="text-3xl md:text-4xl font-bold">My Wishlist</h1>
               </div>
               <p className="text-lg md:text-xl opacity-90">
                 {items.length} {items.length === 1 ? "item" : "items"} saved for later
               </p>
             </div>
-          </section>
+          </header>
 
           {/* Wishlist Grid */}
-          <section className="py-12">
+          <section className="py-12" aria-label="Wishlist items">
             <div className="container mx-auto px-4">
               {items.length === 0 ? (
                 <div className="text-center py-12">
-                  <Heart className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                  <Heart className="h-16 w-16 mx-auto text-muted-foreground mb-4" aria-hidden="true" />
                   <h2 className="text-xl font-semibold mb-2">Your wishlist is empty</h2>
                   <p className="text-muted-foreground mb-6">
                     Start adding products you love to your wishlist
@@ -141,7 +149,7 @@ export default function Wishlist() {
               ) : (
                 <>
                   <div className="flex justify-end mb-6">
-                    <Button variant="outline" onClick={clearWishlist}>
+                    <Button variant="outline" onClick={clearWishlist} aria-label="Clear all items from wishlist">
                       Clear Wishlist
                     </Button>
                   </div>

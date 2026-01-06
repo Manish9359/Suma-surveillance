@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { getDeals, Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { toast } from "@/hooks/use-toast";
-import { Helmet } from "react-helmet";
+import { SEOHead, generateBreadcrumbSchema } from "@/components/seo/SEOHead";
 
 function DealCard({ product }: { product: Product }) {
   const { addItem, openCart } = useCart();
@@ -27,13 +27,16 @@ function DealCard({ product }: { product: Product }) {
   };
 
   return (
-    <div className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-product-hover transition-all duration-300">
+    <article className="group bg-card rounded-xl border border-border overflow-hidden hover:shadow-product-hover transition-all duration-300">
       <div className="relative aspect-square overflow-hidden bg-muted">
-        <Link to={`/product/${product.id}`}>
+        <Link to={`/product/${product.id}`} aria-label={`View ${product.name} details`}>
           <img
             src={product.image}
-            alt={product.name}
+            alt={`${product.name} - ${discount}% off - IOTICS Smart Switch`}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
+            width={300}
+            height={300}
           />
         </Link>
         <div className="absolute top-3 left-3">
@@ -42,8 +45,13 @@ function DealCard({ product }: { product: Product }) {
           </Badge>
         </div>
         <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent translate-y-full group-hover:translate-y-0 transition-transform">
-          <Button className="w-full gap-2" disabled={!product.inStock} onClick={handleAddToCart}>
-            <ShoppingCart className="h-4 w-4" />
+          <Button 
+            className="w-full gap-2" 
+            disabled={!product.inStock} 
+            onClick={handleAddToCart}
+            aria-label={product.inStock ? `Add ${product.name} to cart` : "Out of stock"}
+          >
+            <ShoppingCart className="h-4 w-4" aria-hidden="true" />
             {product.inStock ? "Add to Cart" : "Out of Stock"}
           </Button>
         </div>
@@ -55,8 +63,8 @@ function DealCard({ product }: { product: Product }) {
           </h3>
         </Link>
         <p className="text-xs text-muted-foreground mb-2">{product.category}</p>
-        <div className="flex items-center gap-1 mb-3">
-          <div className="flex items-center">
+        <div className="flex items-center gap-1 mb-3" aria-label={`Rating: ${product.rating} out of 5 stars`}>
+          <div className="flex items-center" role="img" aria-label={`${product.rating} stars`}>
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
@@ -65,6 +73,7 @@ function DealCard({ product }: { product: Product }) {
                     ? "text-yellow-400 fill-yellow-400"
                     : "text-muted-foreground"
                 }`}
+                aria-hidden="true"
               />
             ))}
           </div>
@@ -72,15 +81,15 @@ function DealCard({ product }: { product: Product }) {
         </div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-primary">₹{product.price}</span>
-            <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice}</span>
+            <span className="text-xl font-bold text-primary">₹{product.price.toLocaleString("en-IN")}</span>
+            <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice?.toLocaleString("en-IN")}</span>
           </div>
           <Badge variant="outline" className="text-green-600 border-green-600">
-            Save ₹{savings}
+            Save ₹{savings.toLocaleString("en-IN")}
           </Badge>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 
@@ -100,34 +109,60 @@ export default function Deals() {
     return deals.reduce((sum, p) => sum + (p.originalPrice ? p.originalPrice - p.price : 0), 0);
   }, [deals]);
 
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Deals", url: "/deals" },
+  ]);
+
+  const dealsSchema = {
+    "@context": "https://schema.org",
+    "@type": "OfferCatalog",
+    "name": "Smart Switch Deals & Offers",
+    "description": "Limited time discounts on IOTICS smart WiFi switches",
+    "numberOfItems": deals.length,
+    "itemListElement": sortedDeals.slice(0, 10).map((product, index) => ({
+      "@type": "Offer",
+      "position": index + 1,
+      "name": product.name,
+      "price": product.price,
+      "priceCurrency": "INR",
+      "availability": product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "url": `https://sumasurveillance.com/product/${product.id}`
+    }))
+  };
+
   return (
     <>
-      <Helmet>
-        <title>Deals & Offers | Suma Surveillance Tech</title>
-        <meta name="description" content="Grab the best deals on IOTICS Smart Switches. Limited time offers with up to 25% off!" />
-      </Helmet>
+      <SEOHead
+        title="Smart Switch Deals & Offers | Up to 25% Off - Suma Surveillance Tech"
+        description={`Grab the best deals on IOTICS Smart Switches. ${deals.length} products on sale with savings up to ₹${totalSavings.toLocaleString("en-IN")}. Limited time offers!`}
+        canonicalUrl="/deals"
+        keywords="smart switch deals, IOTICS offers, discount WiFi switches, smart home sale India"
+        structuredData={[dealsSchema, breadcrumbSchema]}
+      />
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <main className="flex-1">
           {/* Hero Banner */}
-          <section className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12 md:py-16">
+          <header className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12 md:py-16">
             <div className="container mx-auto px-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <Tag className="h-8 w-8" />
+                <Tag className="h-8 w-8" aria-hidden="true" />
                 <h1 className="text-3xl md:text-4xl font-bold">Hot Deals & Offers</h1>
               </div>
               <p className="text-lg md:text-xl opacity-90 mb-4">
                 Limited time discounts on premium IOTICS Smart Switches
               </p>
               <div className="inline-flex items-center gap-2 bg-white/20 rounded-full px-6 py-2">
-                <span className="font-semibold">{deals.length} products on sale • Potential savings up to ₹{totalSavings}</span>
+                <span className="font-semibold">{deals.length} products on sale • Potential savings up to ₹{totalSavings.toLocaleString("en-IN")}</span>
               </div>
             </div>
-          </section>
+          </header>
 
           {/* Deals Grid */}
-          <section className="py-12">
+          <section className="py-12" aria-labelledby="deals-heading">
             <div className="container mx-auto px-4">
+              <h2 id="deals-heading" className="sr-only">Available Deals</h2>
               {sortedDeals.length === 0 ? (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground mb-4">No deals available at the moment</p>
