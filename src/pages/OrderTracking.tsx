@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Helmet } from "react-helmet";
+import { SEOHead, generateBreadcrumbSchema } from "@/components/seo/SEOHead";
 import { z } from "zod";
 
 const trackingSchema = z.object({
@@ -95,35 +95,43 @@ export default function OrderTracking() {
     setIsLoading(false);
   };
 
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Track Order", url: "/orders" },
+  ]);
+
   return (
     <>
-      <Helmet>
-        <title>Track Your Order | Suma Surveillance Tech</title>
-        <meta name="description" content="Track your order status with your tracking number and email. Get real-time updates on your IOTICS Smart Switches delivery." />
-      </Helmet>
+      <SEOHead
+        title="Track Your Order | Suma Surveillance Tech"
+        description="Track your IOTICS smart switch order status. Enter your tracking number and email to get real-time delivery updates."
+        canonicalUrl="/orders"
+        keywords="track order, order status, delivery tracking, Suma order tracking"
+        structuredData={breadcrumbSchema}
+      />
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <main className="flex-1">
           {/* Hero Banner */}
-          <section className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12 md:py-16">
+          <header className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-12 md:py-16">
             <div className="container mx-auto px-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-4">
-                <Package className="h-8 w-8" />
+                <Package className="h-8 w-8" aria-hidden="true" />
                 <h1 className="text-3xl md:text-4xl font-bold">Track Your Order</h1>
               </div>
               <p className="text-lg md:text-xl opacity-90">
                 Enter your tracking number and email to check your order status
               </p>
             </div>
-          </section>
+          </header>
 
           {/* Tracking Form */}
-          <section className="py-12">
+          <section className="py-12" aria-labelledby="tracking-form-heading">
             <div className="container mx-auto px-4 max-w-2xl">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Search className="h-5 w-5" />
+                  <CardTitle id="tracking-form-heading" className="flex items-center gap-2">
+                    <Search className="h-5 w-5" aria-hidden="true" />
                     Find Your Order
                   </CardTitle>
                   <CardDescription>
@@ -140,9 +148,11 @@ export default function OrderTracking() {
                         value={trackingNumber}
                         onChange={(e) => setTrackingNumber(e.target.value)}
                         className={errors.trackingNumber ? "border-destructive" : ""}
+                        aria-invalid={!!errors.trackingNumber}
+                        aria-describedby={errors.trackingNumber ? "trackingNumber-error" : undefined}
                       />
                       {errors.trackingNumber && (
-                        <p className="text-sm text-destructive">{errors.trackingNumber}</p>
+                        <p id="trackingNumber-error" className="text-sm text-destructive" role="alert">{errors.trackingNumber}</p>
                       )}
                     </div>
                     <div className="space-y-2">
@@ -154,20 +164,23 @@ export default function OrderTracking() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className={errors.email ? "border-destructive" : ""}
+                        autoComplete="email"
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? "email-error" : undefined}
                       />
                       {errors.email && (
-                        <p className="text-sm text-destructive">{errors.email}</p>
+                        <p id="email-error" className="text-sm text-destructive" role="alert">{errors.email}</p>
                       )}
                     </div>
                     <Button type="submit" className="w-full" disabled={isLoading}>
                       {isLoading ? (
                         <>
-                          <Clock className="h-4 w-4 mr-2 animate-spin" />
+                          <Clock className="h-4 w-4 mr-2 animate-spin" aria-hidden="true" />
                           Searching...
                         </>
                       ) : (
                         <>
-                          <Search className="h-4 w-4 mr-2" />
+                          <Search className="h-4 w-4 mr-2" aria-hidden="true" />
                           Track Order
                         </>
                       )}
@@ -178,7 +191,7 @@ export default function OrderTracking() {
 
               {/* Order Status Result */}
               {orderStatus && (
-                <div className="mt-8 space-y-6 animate-fade-in">
+                <div className="mt-8 space-y-6 animate-fade-in" role="region" aria-label="Order status">
                   {/* Status Card */}
                   <Card>
                     <CardHeader>
@@ -195,12 +208,14 @@ export default function OrderTracking() {
                     <CardContent>
                       <div className="space-y-3">
                         <h4 className="font-medium">Items in this order:</h4>
-                        {orderStatus.items.map((item, idx) => (
-                          <div key={idx} className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">{item.name}</span>
-                            <span className="font-medium">x{item.quantity}</span>
-                          </div>
-                        ))}
+                        <ul>
+                          {orderStatus.items.map((item, idx) => (
+                            <li key={idx} className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">{item.name}</span>
+                              <span className="font-medium">x{item.quantity}</span>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     </CardContent>
                   </Card>
@@ -209,20 +224,20 @@ export default function OrderTracking() {
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
-                        <Truck className="h-5 w-5" />
+                        <Truck className="h-5 w-5" aria-hidden="true" />
                         Shipment Timeline
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="relative">
+                      <ol className="relative" aria-label="Order timeline">
                         {orderStatus.timeline.map((event, idx) => (
-                          <div key={idx} className="flex gap-4 pb-6 last:pb-0">
+                          <li key={idx} className="flex gap-4 pb-6 last:pb-0">
                             <div className="flex flex-col items-center">
                               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                                 event.completed 
                                   ? "bg-primary text-primary-foreground" 
                                   : "bg-muted text-muted-foreground"
-                              }`}>
+                              }`} aria-hidden="true">
                                 {event.completed ? (
                                   <CheckCircle className="h-4 w-4" />
                                 ) : (
@@ -232,31 +247,32 @@ export default function OrderTracking() {
                               {idx < orderStatus.timeline.length - 1 && (
                                 <div className={`w-0.5 flex-1 mt-2 ${
                                   event.completed ? "bg-primary" : "bg-muted"
-                                }`} />
+                                }`} aria-hidden="true" />
                               )}
                             </div>
                             <div className="flex-1 pb-2">
                               <p className={`font-medium ${event.completed ? "text-foreground" : "text-muted-foreground"}`}>
                                 {event.status}
+                                <span className="sr-only">{event.completed ? " - completed" : " - pending"}</span>
                               </p>
-                              <p className="text-sm text-muted-foreground">{event.date}</p>
+                              <time className="text-sm text-muted-foreground">{event.date}</time>
                               {event.location && (
                                 <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                                  <MapPin className="h-3 w-3" />
+                                  <MapPin className="h-3 w-3" aria-hidden="true" />
                                   {event.location}
                                 </p>
                               )}
                             </div>
-                          </div>
+                          </li>
                         ))}
-                      </div>
+                      </ol>
                     </CardContent>
                   </Card>
                 </div>
               )}
 
               {/* Help Section */}
-              <div className="mt-8 text-center text-sm text-muted-foreground">
+              <aside className="mt-8 text-center text-sm text-muted-foreground">
                 <p>Need help? Contact our support team at</p>
                 <a href="mailto:support@sumasurveillance.com" className="text-primary hover:underline">
                   support@sumasurveillance.com
@@ -265,7 +281,7 @@ export default function OrderTracking() {
                 <a href="tel:+919011333736" className="text-primary hover:underline">
                   +91 9011333736
                 </a>
-              </div>
+              </aside>
             </div>
           </section>
         </main>

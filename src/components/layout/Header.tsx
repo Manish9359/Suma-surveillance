@@ -124,7 +124,7 @@ export function Header() {
       </div>
 
       {/* Navigation */}
-      <nav className="bg-secondary hidden md:block">
+      <nav className="bg-secondary hidden md:block" aria-label="Main navigation">
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-1">
             {/* Categories dropdown */}

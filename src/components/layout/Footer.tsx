@@ -30,7 +30,7 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="bg-secondary text-secondary-foreground">
+    <footer className="bg-secondary text-secondary-foreground" role="contentinfo">
       {/* Newsletter */}
       <div className="border-b border-secondary-foreground/10">
         <div className="container mx-auto px-4 py-8">

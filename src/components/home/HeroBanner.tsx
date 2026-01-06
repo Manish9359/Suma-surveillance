@@ -10,9 +10,10 @@ export function HeroBanner() {
       <div className="absolute inset-0">
         <img
           src={heroBanner}
-          alt="Electronic components and circuit boards on workspace"
+          alt="Smart home automation with IOTICS WiFi touch switches"
           className="w-full h-full object-cover"
-          loading="lazy"
+          loading="eager"
+          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-secondary/95 via-secondary/85 to-secondary/55 sm:to-transparent" />
       </div>

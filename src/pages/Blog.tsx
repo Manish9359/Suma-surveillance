@@ -4,7 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Helmet } from "react-helmet";
+import { SEOHead, generateBreadcrumbSchema } from "@/components/seo/SEOHead";
 
 const blogPosts = [
   {
@@ -42,36 +42,67 @@ const blogPosts = [
 ];
 
 export default function Blog() {
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Blog", url: "/blog" },
+  ]);
+
+  const blogSchema = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "Suma Surveillance Tech Blog",
+    "description": "Tips, guides, and news about smart home automation and IOTICS smart switches",
+    "url": "https://sumasurveillance.com/blog",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Suma Surveillance Tech"
+    },
+    "blogPost": blogPosts.map(post => ({
+      "@type": "BlogPosting",
+      "headline": post.title,
+      "description": post.excerpt,
+      "datePublished": post.date,
+      "image": "/suma-logo.png",
+      "author": {
+        "@type": "Organization",
+        "name": "Suma Surveillance Tech"
+      }
+    }))
+  };
+
   return (
     <>
-      <Helmet>
-        <title>Blog & Updates | Suma Surveillance Tech</title>
-        <meta name="description" content="Stay updated with the latest news, tips, and guides on smart home automation from Suma Surveillance Tech." />
-      </Helmet>
+      <SEOHead
+        title="Blog & Smart Home Tips | Suma Surveillance Tech"
+        description="Stay updated with smart home automation tips, IOTICS switch installation guides, and the latest news. Learn about WiFi switches, voice control & more."
+        canonicalUrl="/blog"
+        keywords="smart home blog, IOTICS tips, smart switch guide, home automation tutorial, WiFi switch installation"
+        structuredData={[blogSchema, breadcrumbSchema]}
+      />
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <main className="flex-1">
           {/* Hero */}
-          <section className="bg-muted py-12 md:py-16">
+          <header className="bg-muted py-12 md:py-16">
             <div className="container mx-auto px-4 text-center">
               <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Blog & Updates</h1>
               <p className="text-muted-foreground max-w-2xl mx-auto">
                 Stay updated with the latest tips, guides, and news about smart home automation
               </p>
             </div>
-          </section>
+          </header>
 
           {/* Instagram Section */}
-          <section className="py-12 border-b">
+          <section className="py-12 border-b" aria-labelledby="instagram-heading">
             <div className="container mx-auto px-4">
               <Card className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 border-none">
                 <CardContent className="flex flex-col md:flex-row items-center justify-between gap-6 py-8">
                   <div className="flex items-center gap-4">
                     <div className="p-4 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400">
-                      <Instagram className="h-8 w-8 text-white" />
+                      <Instagram className="h-8 w-8 text-white" aria-hidden="true" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-foreground">Follow Us on Instagram</h2>
+                      <h2 id="instagram-heading" className="text-xl font-bold text-foreground">Follow Us on Instagram</h2>
                       <p className="text-muted-foreground">@sumasurveillancetech</p>
                     </div>
                   </div>
@@ -80,10 +111,11 @@ export default function Blog() {
                       href="https://www.instagram.com/sumasurveillancetech/"
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label="Follow Suma Surveillance Tech on Instagram"
                     >
-                      <Instagram className="h-5 w-5" />
+                      <Instagram className="h-5 w-5" aria-hidden="true" />
                       Follow on Instagram
-                      <ExternalLink className="h-4 w-4" />
+                      <ExternalLink className="h-4 w-4" aria-hidden="true" />
                     </a>
                   </Button>
                 </CardContent>
@@ -92,55 +124,63 @@ export default function Blog() {
           </section>
 
           {/* Blog Posts */}
-          <section className="py-12">
+          <section className="py-12" aria-labelledby="articles-heading">
             <div className="container mx-auto px-4">
-              <h2 className="text-2xl font-bold text-foreground mb-8">Latest Articles</h2>
+              <h2 id="articles-heading" className="text-2xl font-bold text-foreground mb-8">Latest Articles</h2>
               <div className="grid md:grid-cols-2 gap-6">
                 {blogPosts.map((post) => (
-                  <Card key={post.id} className="group hover:shadow-lg transition-shadow overflow-hidden">
-                    <div className="flex flex-col sm:flex-row">
-                      <div className="sm:w-1/3 bg-muted flex items-center justify-center p-6">
-                        <img
-                          src={post.image}
-                          alt={post.title}
-                          className="w-24 h-24 object-contain opacity-50 group-hover:opacity-70 transition-opacity"
-                        />
+                  <article key={post.id} className="group" itemScope itemType="https://schema.org/BlogPosting">
+                    <Card className="hover:shadow-lg transition-shadow overflow-hidden h-full">
+                      <div className="flex flex-col sm:flex-row h-full">
+                        <div className="sm:w-1/3 bg-muted flex items-center justify-center p-6">
+                          <img
+                            src={post.image}
+                            alt={`${post.title} article thumbnail`}
+                            className="w-24 h-24 object-contain opacity-50 group-hover:opacity-70 transition-opacity"
+                            loading="lazy"
+                            itemProp="image"
+                          />
+                        </div>
+                        <div className="sm:w-2/3">
+                          <CardHeader className="pb-2">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant="secondary">{post.category}</Badge>
+                              <time 
+                                className="text-xs text-muted-foreground flex items-center gap-1"
+                                dateTime={post.date}
+                                itemProp="datePublished"
+                              >
+                                <Calendar className="h-3 w-3" aria-hidden="true" />
+                                {new Date(post.date).toLocaleDateString("en-IN", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })}
+                              </time>
+                            </div>
+                            <CardTitle className="text-lg group-hover:text-primary transition-colors" itemProp="headline">
+                              {post.title}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <CardDescription className="line-clamp-2 mb-3" itemProp="description">{post.excerpt}</CardDescription>
+                            <Button variant="link" className="p-0 h-auto text-primary gap-1">
+                              Read More <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                            </Button>
+                          </CardContent>
+                        </div>
                       </div>
-                      <div className="sm:w-2/3">
-                        <CardHeader className="pb-2">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="secondary">{post.category}</Badge>
-                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              {new Date(post.date).toLocaleDateString("en-IN", {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                              })}
-                            </span>
-                          </div>
-                          <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                            {post.title}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <CardDescription className="line-clamp-2 mb-3">{post.excerpt}</CardDescription>
-                          <Button variant="link" className="p-0 h-auto text-primary gap-1">
-                            Read More <ArrowRight className="h-4 w-4" />
-                          </Button>
-                        </CardContent>
-                      </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  </article>
                 ))}
               </div>
             </div>
           </section>
 
           {/* CTA */}
-          <section className="py-12 bg-muted">
+          <section className="py-12 bg-muted" aria-labelledby="cta-heading">
             <div className="container mx-auto px-4 text-center">
-              <h2 className="text-2xl font-bold text-foreground mb-4">Want More Updates?</h2>
+              <h2 id="cta-heading" className="text-2xl font-bold text-foreground mb-4">Want More Updates?</h2>
               <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
                 Follow us on Instagram for daily updates, installation videos, customer stories, and exclusive offers!
               </p>
@@ -149,8 +189,9 @@ export default function Blog() {
                   href="https://www.instagram.com/sumasurveillancetech/"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label="Follow @sumasurveillancetech on Instagram"
                 >
-                  <Instagram className="h-5 w-5" />
+                  <Instagram className="h-5 w-5" aria-hidden="true" />
                   @sumasurveillancetech
                 </a>
               </Button>
