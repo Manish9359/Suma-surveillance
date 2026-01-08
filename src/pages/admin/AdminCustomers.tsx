@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   MoreHorizontal,
@@ -8,6 +8,7 @@ import {
   User,
   Shield,
   ShieldCheck,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,92 +46,67 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-
-// Mock customer data
-const mockCustomers = [
-  {
-    id: "1",
-    name: "Rahul Sharma",
-    email: "rahul.sharma@example.com",
-    phone: "+91 98765 43210",
-    role: "CUSTOMER" as const,
-    ordersCount: 12,
-    totalSpent: 125890,
-    createdAt: "2023-06-15T10:30:00Z",
-    lastOrder: "2024-01-15T10:30:00Z",
-  },
-  {
-    id: "2",
-    name: "Priya Singh",
-    email: "priya.singh@example.com",
-    phone: "+91 87654 32109",
-    role: "CUSTOMER" as const,
-    ordersCount: 8,
-    totalSpent: 89450,
-    createdAt: "2023-08-20T14:15:00Z",
-    lastOrder: "2024-01-14T09:15:00Z",
-  },
-  {
-    id: "3",
-    name: "Admin User",
-    email: "admin@suma.com",
-    phone: "+91 99999 99999",
-    role: "ADMIN" as const,
-    ordersCount: 0,
-    totalSpent: 0,
-    createdAt: "2023-01-01T00:00:00Z",
-    lastOrder: null,
-  },
-  {
-    id: "4",
-    name: "Amit Kumar",
-    email: "amit.kumar@example.com",
-    phone: "+91 76543 21098",
-    role: "CUSTOMER" as const,
-    ordersCount: 5,
-    totalSpent: 45680,
-    createdAt: "2023-10-10T16:45:00Z",
-    lastOrder: "2024-01-10T16:45:00Z",
-  },
-  {
-    id: "5",
-    name: "Sneha Patel",
-    email: "sneha.patel@example.com",
-    phone: "+91 65432 10987",
-    role: "CUSTOMER" as const,
-    ordersCount: 15,
-    totalSpent: 178920,
-    createdAt: "2023-04-05T11:20:00Z",
-    lastOrder: "2024-01-12T14:20:00Z",
-  },
-  {
-    id: "6",
-    name: "Vikram Reddy",
-    email: "vikram.reddy@example.com",
-    phone: "+91 54321 09876",
-    role: "CUSTOMER" as const,
-    ordersCount: 3,
-    totalSpent: 23890,
-    createdAt: "2023-11-25T09:00:00Z",
-    lastOrder: "2024-01-08T11:00:00Z",
-  },
-];
+import { toast } from "sonner";
+import { getUsers, updateUserRole, deleteUser } from "@/services/api/userService";
+import type { User as UserType } from "@/services/api/types";
 
 export default function AdminCustomers() {
+  const [users, setUsers] = useState<UserType[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState("all");
-  const [selectedCustomer, setSelectedCustomer] = useState<typeof mockCustomers[0] | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<UserType | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  const filteredCustomers = mockCustomers.filter((customer) => {
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const data = await getUsers();
+      setUsers(data.content ?? []);
+    } catch (error) {
+      toast.error("Failed to load customers. Ensure backend is running.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredCustomers = users.filter((customer) => {
     const matchesSearch =
-      customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchQuery.toLowerCase());
+      customer.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      customer.email?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = selectedRole === "all" || customer.role === selectedRole;
     return matchesSearch && matchesRole;
   });
 
-  const formatDate = (dateString: string | null) => {
+  const handleRoleUpdate = async (userId: string, role: string) => {
+    try {
+      await updateUserRole(userId, role);
+      toast.success(`User role updated to ${role}`);
+      fetchUsers();
+    } catch (error) {
+      toast.error("Failed to update user role");
+      console.error(error);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    try {
+      await deleteUser(userId);
+      toast.success("User deleted successfully");
+      fetchUsers();
+    } catch (error) {
+      toast.error("Failed to delete user");
+      console.error(error);
+    }
+  };
+
+  const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-IN", {
       year: "numeric",
@@ -147,6 +123,14 @@ export default function AdminCustomers() {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -167,7 +151,7 @@ export default function AdminCustomers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockCustomers.filter((c) => c.role === "CUSTOMER").length}
+              {users.filter((c) => c.role === "CUSTOMER").length}
             </div>
           </CardContent>
         </Card>
@@ -180,7 +164,7 @@ export default function AdminCustomers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockCustomers.filter((c) => c.role === "ADMIN").length}
+              {users.filter((c) => c.role === "ADMIN").length}
             </div>
           </CardContent>
         </Card>
@@ -192,7 +176,7 @@ export default function AdminCustomers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {mockCustomers.reduce((sum, c) => sum + c.ordersCount, 0)}
+              {users.reduce((sum, c) => sum + (c.ordersCount ?? 0), 0)}
             </div>
           </CardContent>
         </Card>
@@ -204,7 +188,7 @@ export default function AdminCustomers() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ₹{mockCustomers.reduce((sum, c) => sum + c.totalSpent, 0).toLocaleString()}
+              ₹{users.reduce((sum, c) => sum + (c.totalSpent ?? 0), 0).toLocaleString()}
             </div>
           </CardContent>
         </Card>
@@ -250,84 +234,95 @@ export default function AdminCustomers() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredCustomers.map((customer) => (
-                <TableRow key={customer.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-9 w-9">
-                        <AvatarFallback className="bg-primary/10 text-primary">
-                          {getInitials(customer.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{customer.name}</p>
-                        <p className="text-sm text-muted-foreground">{customer.email}</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{customer.phone}</TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={
-                        customer.role === "ADMIN"
-                          ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
-                          : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
-                      }
-                    >
-                      {customer.role === "ADMIN" ? (
-                        <ShieldCheck className="mr-1 h-3 w-3" />
-                      ) : (
-                        <User className="mr-1 h-3 w-3" />
-                      )}
-                      {customer.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">{customer.ordersCount}</TableCell>
-                  <TableCell className="text-right font-medium">
-                    ₹{customer.totalSpent.toLocaleString()}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDate(customer.createdAt)}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setSelectedCustomer(customer);
-                            setIsDetailsOpen(true);
-                          }}
-                        >
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>View Orders</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        {customer.role === "CUSTOMER" ? (
-                          <DropdownMenuItem>
-                            <Shield className="mr-2 h-4 w-4" />
-                            Make Admin
-                          </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem>
-                            <User className="mr-2 h-4 w-4" />
-                            Remove Admin
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
-                          Delete Customer
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+              {filteredCustomers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                    No customers found
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filteredCustomers.map((customer) => (
+                  <TableRow key={customer.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9">
+                          <AvatarFallback className="bg-primary/10 text-primary">
+                            {getInitials(customer.name ?? "?")}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{customer.name}</p>
+                          <p className="text-sm text-muted-foreground">{customer.email}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">{customer.phone ?? "N/A"}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="secondary"
+                        className={
+                          customer.role === "ADMIN"
+                            ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
+                            : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
+                        }
+                      >
+                        {customer.role === "ADMIN" ? (
+                          <ShieldCheck className="mr-1 h-3 w-3" />
+                        ) : (
+                          <User className="mr-1 h-3 w-3" />
+                        )}
+                        {customer.role}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">{customer.ordersCount ?? 0}</TableCell>
+                    <TableCell className="text-right font-medium">
+                      ₹{(customer.totalSpent ?? 0).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {formatDate(customer.createdAt)}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setSelectedCustomer(customer);
+                              setIsDetailsOpen(true);
+                            }}
+                          >
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>View Orders</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          {customer.role === "CUSTOMER" ? (
+                            <DropdownMenuItem onClick={() => handleRoleUpdate(customer.id, "ADMIN")}>
+                              <Shield className="mr-2 h-4 w-4" />
+                              Make Admin
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem onClick={() => handleRoleUpdate(customer.id, "CUSTOMER")}>
+                              <User className="mr-2 h-4 w-4" />
+                              Remove Admin
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleDeleteUser(customer.id)}
+                          >
+                            Delete Customer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -338,9 +333,7 @@ export default function AdminCustomers() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Customer Details</DialogTitle>
-            <DialogDescription>
-              View and manage customer information
-            </DialogDescription>
+            <DialogDescription>View and manage customer information</DialogDescription>
           </DialogHeader>
           {selectedCustomer && (
             <div className="space-y-6">
@@ -348,7 +341,7 @@ export default function AdminCustomers() {
               <div className="flex items-center gap-4">
                 <Avatar className="h-16 w-16">
                   <AvatarFallback className="bg-primary/10 text-primary text-xl">
-                    {getInitials(selectedCustomer.name)}
+                    {getInitials(selectedCustomer.name ?? "?")}
                   </AvatarFallback>
                 </Avatar>
                 <div>
@@ -376,7 +369,7 @@ export default function AdminCustomers() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{selectedCustomer.phone}</span>
+                  <span className="text-sm">{selectedCustomer.phone ?? "N/A"}</span>
                 </div>
               </div>
 
@@ -386,12 +379,12 @@ export default function AdminCustomers() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Orders</p>
-                  <p className="text-xl font-semibold">{selectedCustomer.ordersCount}</p>
+                  <p className="text-xl font-semibold">{selectedCustomer.ordersCount ?? 0}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total Spent</p>
                   <p className="text-xl font-semibold">
-                    ₹{selectedCustomer.totalSpent.toLocaleString()}
+                    ₹{(selectedCustomer.totalSpent ?? 0).toLocaleString()}
                   </p>
                 </div>
                 <div>
@@ -400,7 +393,7 @@ export default function AdminCustomers() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Last Order</p>
-                  <p className="font-medium">{formatDate(selectedCustomer.lastOrder)}</p>
+                  <p className="font-medium">{formatDate(selectedCustomer.lastOrderAt)}</p>
                 </div>
               </div>
             </div>

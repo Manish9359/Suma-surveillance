@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Plus,
   Search,
@@ -7,6 +7,7 @@ import {
   MoreHorizontal,
   Package,
   Filter,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,37 +45,142 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { products } from "@/data/products";
-
-// Mock product data based on existing products
-const mockProducts = products.slice(0, 10).map((p, index) => ({
-  id: p.id,
-  name: p.name,
-  category: p.category,
-  price: p.price,
-  originalPrice: p.originalPrice,
-  stock: Math.floor(Math.random() * 100) + 10,
-  status: Math.random() > 0.2 ? "Active" : "Draft",
-  image: p.image,
-  badge: p.badge,
-}));
+import { toast } from "sonner";
+import {
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getCategories,
+} from "@/services/api/productService";
+import type { Product, Category, CreateProductRequest } from "@/services/api/types";
 
 export default function AdminProducts() {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<typeof mockProducts[0] | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [formLoading, setFormLoading] = useState(false);
 
-  const categories = ["all", "Smart Switches", "Dimmers", "Smart Plugs", "Accessories"];
+  // Form state
+  const [formData, setFormData] = useState<CreateProductRequest>({
+    name: "",
+    description: "",
+    price: 0,
+    originalPrice: 0,
+    category: "",
+    stock: 0,
+    imageUrl: "",
+    badge: "",
+    status: "ACTIVE",
+  });
 
-  const filteredProducts = mockProducts.filter((product) => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [productsData, categoriesData] = await Promise.all([
+        getProducts(),
+        getCategories(),
+      ]);
+      setProducts(productsData.content ?? []);
+      setCategories(categoriesData);
+    } catch (error) {
+      toast.error("Failed to load products. Ensure backend is running.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "all" || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      description: "",
+      price: 0,
+      originalPrice: 0,
+      category: "",
+      stock: 0,
+      imageUrl: "",
+      badge: "",
+      status: "ACTIVE",
+    });
+  };
+
+  const handleAddProduct = async () => {
+    try {
+      setFormLoading(true);
+      await createProduct(formData);
+      toast.success("Product created successfully");
+      setIsAddDialogOpen(false);
+      resetForm();
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to create product");
+      console.error(error);
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleUpdateProduct = async () => {
+    if (!editingProduct) return;
+    try {
+      setFormLoading(true);
+      await updateProduct(editingProduct.id, formData);
+      toast.success("Product updated successfully");
+      setEditingProduct(null);
+      resetForm();
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to update product");
+      console.error(error);
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this product?")) return;
+    try {
+      await deleteProduct(id);
+      toast.success("Product deleted successfully");
+      fetchData();
+    } catch (error) {
+      toast.error("Failed to delete product");
+      console.error(error);
+    }
+  };
+
+  const openEditDialog = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      name: product.name,
+      description: product.description ?? "",
+      price: product.price,
+      originalPrice: product.originalPrice ?? 0,
+      category: product.category,
+      stock: product.stock ?? 0,
+      imageUrl: product.imageUrl ?? "",
+      badge: product.badge ?? "",
+      status: product.status ?? "ACTIVE",
+    });
+  };
+
   const getStatusColor = (status: string) => {
-    return status === "Active"
+    return status === "ACTIVE"
       ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
       : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
   };
@@ -92,6 +198,130 @@ export default function AdminProducts() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const ProductForm = () => (
+    <div className="grid gap-4 py-4">
+      <div className="grid gap-2">
+        <Label htmlFor="name">Product Name</Label>
+        <Input
+          id="name"
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="Enter product name"
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="price">Price (₹)</Label>
+          <Input
+            id="price"
+            type="number"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="originalPrice">Original Price (₹)</Label>
+          <Input
+            id="originalPrice"
+            type="number"
+            value={formData.originalPrice}
+            onChange={(e) => setFormData({ ...formData, originalPrice: Number(e.target.value) })}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="category">Category</Label>
+          <Select
+            value={formData.category}
+            onValueChange={(value) => setFormData({ ...formData, category: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((cat) => (
+                <SelectItem key={cat.id} value={cat.name}>
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="stock">Stock</Label>
+          <Input
+            id="stock"
+            type="number"
+            value={formData.stock}
+            onChange={(e) => setFormData({ ...formData, stock: Number(e.target.value) })}
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="badge">Badge</Label>
+          <Select
+            value={formData.badge || "none"}
+            onValueChange={(value) => setFormData({ ...formData, badge: value === "none" ? "" : value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select badge" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">None</SelectItem>
+              <SelectItem value="new">New</SelectItem>
+              <SelectItem value="sale">Sale</SelectItem>
+              <SelectItem value="hot">Hot</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor="status">Status</Label>
+          <Select
+            value={formData.status}
+            onValueChange={(value) => setFormData({ ...formData, status: value })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ACTIVE">Active</SelectItem>
+              <SelectItem value="DRAFT">Draft</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          placeholder="Enter product description"
+          rows={3}
+        />
+      </div>
+      <div className="grid gap-2">
+        <Label htmlFor="image">Image URL</Label>
+        <Input
+          id="image"
+          value={formData.imageUrl}
+          onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+          placeholder="Enter image URL"
+        />
+      </div>
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -102,7 +332,7 @@ export default function AdminProducts() {
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button onClick={resetForm}>
               <Plus className="mr-2 h-4 w-4" />
               Add Product
             </Button>
@@ -110,73 +340,17 @@ export default function AdminProducts() {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Product</DialogTitle>
-              <DialogDescription>
-                Fill in the product details below
-              </DialogDescription>
+              <DialogDescription>Fill in the product details below</DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Product Name</Label>
-                <Input id="name" placeholder="Enter product name" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="price">Price (₹)</Label>
-                  <Input id="price" type="number" placeholder="0" />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="originalPrice">Original Price (₹)</Label>
-                  <Input id="originalPrice" type="number" placeholder="0" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="category">Category</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Smart Switches">Smart Switches</SelectItem>
-                      <SelectItem value="Dimmers">Dimmers</SelectItem>
-                      <SelectItem value="Smart Plugs">Smart Plugs</SelectItem>
-                      <SelectItem value="Accessories">Accessories</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="stock">Stock</Label>
-                  <Input id="stock" type="number" placeholder="0" />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="badge">Badge</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select badge (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="new">New</SelectItem>
-                    <SelectItem value="sale">Sale</SelectItem>
-                    <SelectItem value="hot">Hot</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" placeholder="Enter product description" rows={3} />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="image">Image URL</Label>
-                <Input id="image" placeholder="Enter image URL" />
-              </div>
-            </div>
+            <ProductForm />
             <DialogFooter>
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={() => setIsAddDialogOpen(false)}>Save Product</Button>
+              <Button onClick={handleAddProduct} disabled={formLoading}>
+                {formLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Product
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -186,48 +360,40 @@ export default function AdminProducts() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Products
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Products</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{mockProducts.length}</div>
+            <div className="text-2xl font-bold">{products.length}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {mockProducts.filter((p) => p.status === "Active").length}
+              {products.filter((p) => p.status === "ACTIVE").length}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Draft
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Draft</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-600">
-              {mockProducts.filter((p) => p.status === "Draft").length}
+              {products.filter((p) => p.status === "DRAFT").length}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Low Stock
-            </CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Low Stock</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">
-              {mockProducts.filter((p) => p.stock < 20).length}
+              {products.filter((p) => (p.stock ?? 0) < 20).length}
             </div>
           </CardContent>
         </Card>
@@ -250,9 +416,10 @@ export default function AdminProducts() {
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
             {categories.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                {cat === "all" ? "All Categories" : cat}
+              <SelectItem key={cat.id} value={cat.name}>
+                {cat.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -275,73 +442,102 @@ export default function AdminProducts() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredProducts.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-12 w-12 rounded-md object-cover"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium max-w-[250px] truncate">
-                        {product.name}
-                      </span>
-                      {product.badge && (
-                        <Badge variant="secondary" className={getBadgeColor(product.badge)}>
-                          {product.badge}
-                        </Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell className="text-right">
-                    <div>
-                      <span className="font-medium">₹{product.price.toLocaleString()}</span>
-                      {product.originalPrice && (
-                        <span className="ml-2 text-sm text-muted-foreground line-through">
-                          ₹{product.originalPrice.toLocaleString()}
-                        </span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <span className={product.stock < 20 ? "text-orange-600 font-medium" : ""}>
-                      {product.stock}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="secondary" className={getStatusColor(product.status)}>
-                      {product.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setEditingProduct(product)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+              {filteredProducts.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                    No products found
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filteredProducts.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>
+                      <img
+                        src={product.imageUrl || "/placeholder.svg"}
+                        alt={product.name}
+                        className="h-12 w-12 rounded-md object-cover"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium max-w-[250px] truncate">{product.name}</span>
+                        {product.badge && (
+                          <Badge variant="secondary" className={getBadgeColor(product.badge)}>
+                            {product.badge}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>{product.category}</TableCell>
+                    <TableCell className="text-right">
+                      <div>
+                        <span className="font-medium">₹{product.price.toLocaleString()}</span>
+                        {product.originalPrice && (
+                          <span className="ml-2 text-sm text-muted-foreground line-through">
+                            ₹{product.originalPrice.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span className={(product.stock ?? 0) < 20 ? "text-orange-600 font-medium" : ""}>
+                        {product.stock ?? 0}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="secondary" className={getStatusColor(product.status ?? "ACTIVE")}>
+                        {product.status ?? "ACTIVE"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEditDialog(product)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleDeleteProduct(product.id)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      {/* Edit Dialog */}
+      <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Product</DialogTitle>
+            <DialogDescription>Update the product details below</DialogDescription>
+          </DialogHeader>
+          <ProductForm />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingProduct(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateProduct} disabled={formLoading}>
+              {formLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Update Product
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

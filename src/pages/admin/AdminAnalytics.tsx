@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -24,89 +24,92 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, Package } from "lucide-react";
-
-// Mock data
-const revenueData = [
-  { month: "Jan", revenue: 245000, orders: 145 },
-  { month: "Feb", revenue: 312000, orders: 178 },
-  { month: "Mar", revenue: 298000, orders: 156 },
-  { month: "Apr", revenue: 421000, orders: 234 },
-  { month: "May", revenue: 385000, orders: 198 },
-  { month: "Jun", revenue: 467000, orders: 267 },
-  { month: "Jul", revenue: 512000, orders: 289 },
-  { month: "Aug", revenue: 478000, orders: 256 },
-  { month: "Sep", revenue: 534000, orders: 312 },
-  { month: "Oct", revenue: 598000, orders: 345 },
-  { month: "Nov", revenue: 687000, orders: 398 },
-  { month: "Dec", revenue: 756000, orders: 423 },
-];
-
-const categoryData = [
-  { name: "Smart Switches", value: 45, revenue: 3456000 },
-  { name: "Dimmers", value: 20, revenue: 1234000 },
-  { name: "Smart Plugs", value: 18, revenue: 987000 },
-  { name: "Accessories", value: 12, revenue: 654000 },
-  { name: "Controllers", value: 5, revenue: 321000 },
-];
-
-const weeklyData = [
-  { day: "Mon", orders: 45, revenue: 89000 },
-  { day: "Tue", orders: 52, revenue: 102000 },
-  { day: "Wed", orders: 38, revenue: 76000 },
-  { day: "Thu", orders: 65, revenue: 134000 },
-  { day: "Fri", orders: 48, revenue: 98000 },
-  { day: "Sat", orders: 73, revenue: 156000 },
-  { day: "Sun", orders: 41, revenue: 82000 },
-];
-
-const trafficData = [
-  { source: "Direct", visitors: 4500, percentage: 35 },
-  { source: "Google", visitors: 3200, percentage: 25 },
-  { source: "Social Media", visitors: 2800, percentage: 22 },
-  { source: "Referral", visitors: 1500, percentage: 12 },
-  { source: "Other", visitors: 800, percentage: 6 },
-];
+import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Users, Package, Loader2 } from "lucide-react";
+import { getSalesAnalytics, getRevenueAnalytics } from "@/services/api/analyticsService";
+import type { SalesAnalytics, RevenueAnalytics } from "@/services/api/types";
 
 const COLORS = ["hsl(var(--primary))", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
-const stats = [
-  {
-    title: "Total Revenue",
-    value: "₹56,93,000",
-    change: "+18.2%",
-    trend: "up",
-    icon: DollarSign,
-    description: "vs last year",
-  },
-  {
-    title: "Total Orders",
-    value: "3,201",
-    change: "+12.5%",
-    trend: "up",
-    icon: ShoppingCart,
-    description: "vs last year",
-  },
-  {
-    title: "New Customers",
-    value: "1,847",
-    change: "+24.3%",
-    trend: "up",
-    icon: Users,
-    description: "vs last year",
-  },
-  {
-    title: "Products Sold",
-    value: "4,892",
-    change: "+8.7%",
-    trend: "up",
-    icon: Package,
-    description: "vs last year",
-  },
-];
-
 export default function AdminAnalytics() {
   const [period, setPeriod] = useState("yearly");
+  const [loading, setLoading] = useState(true);
+  const [salesData, setSalesData] = useState<SalesAnalytics | null>(null);
+  const [revenueData, setRevenueData] = useState<RevenueAnalytics | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [sales, revenue] = await Promise.all([
+          getSalesAnalytics(period),
+          getRevenueAnalytics(period),
+        ]);
+        setSalesData(sales);
+        setRevenueData(revenue);
+      } catch (err) {
+        setError("Failed to load analytics. Ensure backend is running.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [period]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 text-center">
+        <p className="text-destructive mb-2">{error}</p>
+        <p className="text-muted-foreground text-sm">
+          Ensure your Spring Boot backend is running at http://localhost:8080
+        </p>
+      </div>
+    );
+  }
+
+  const stats = [
+    {
+      title: "Total Revenue",
+      value: `₹${(revenueData?.totalRevenue ?? 0).toLocaleString()}`,
+      change: revenueData?.revenueChange ?? "+0%",
+      trend: revenueData?.revenueChange?.startsWith("+") ? "up" : "down",
+      icon: DollarSign,
+      description: "vs last period",
+    },
+    {
+      title: "Total Orders",
+      value: (salesData?.totalOrders ?? 0).toLocaleString(),
+      change: salesData?.ordersChange ?? "+0%",
+      trend: salesData?.ordersChange?.startsWith("+") ? "up" : "down",
+      icon: ShoppingCart,
+      description: "vs last period",
+    },
+    {
+      title: "New Customers",
+      value: (salesData?.newCustomers ?? 0).toLocaleString(),
+      change: salesData?.customersChange ?? "+0%",
+      trend: salesData?.customersChange?.startsWith("+") ? "up" : "down",
+      icon: Users,
+      description: "vs last period",
+    },
+    {
+      title: "Products Sold",
+      value: (salesData?.productsSold ?? 0).toLocaleString(),
+      change: salesData?.productsSoldChange ?? "+0%",
+      trend: salesData?.productsSoldChange?.startsWith("+") ? "up" : "down",
+      icon: Package,
+      description: "vs last period",
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -171,12 +174,12 @@ export default function AdminAnalytics() {
             <Card>
               <CardHeader>
                 <CardTitle>Revenue Overview</CardTitle>
-                <CardDescription>Monthly revenue for the current year</CardDescription>
+                <CardDescription>Revenue for the selected period</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={revenueData}>
+                    <AreaChart data={revenueData?.chartData ?? []}>
                       <defs>
                         <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
@@ -184,7 +187,7 @@ export default function AdminAnalytics() {
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis dataKey="month" className="text-xs" />
+                      <XAxis dataKey="label" className="text-xs" />
                       <YAxis className="text-xs" tickFormatter={(value) => `₹${value / 1000}k`} />
                       <Tooltip
                         contentStyle={{
@@ -215,7 +218,7 @@ export default function AdminAnalytics() {
               <CardContent>
                 <div className="h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={weeklyData}>
+                    <BarChart data={revenueData?.weeklyData ?? []}>
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                       <XAxis dataKey="day" className="text-xs" />
                       <YAxis className="text-xs" tickFormatter={(value) => `₹${value / 1000}k`} />
@@ -240,14 +243,14 @@ export default function AdminAnalytics() {
           <Card>
             <CardHeader>
               <CardTitle>Orders Overview</CardTitle>
-              <CardDescription>Monthly order count for the current year</CardDescription>
+              <CardDescription>Order count for the selected period</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={revenueData}>
+                  <LineChart data={salesData?.ordersChartData ?? []}>
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" className="text-xs" />
+                    <XAxis dataKey="label" className="text-xs" />
                     <YAxis className="text-xs" />
                     <Tooltip
                       contentStyle={{
@@ -282,7 +285,7 @@ export default function AdminAnalytics() {
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={categoryData}
+                        data={salesData?.categoryData ?? []}
                         cx="50%"
                         cy="50%"
                         innerRadius={80}
@@ -292,7 +295,7 @@ export default function AdminAnalytics() {
                         label={({ name, value }) => `${name}: ${value}%`}
                         labelLine={false}
                       >
-                        {categoryData.map((_, index) => (
+                        {(salesData?.categoryData ?? []).map((_, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
@@ -317,7 +320,7 @@ export default function AdminAnalytics() {
               <CardContent>
                 <div className="h-[350px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={categoryData} layout="vertical">
+                    <BarChart data={salesData?.categoryData ?? []} layout="vertical">
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                       <XAxis type="number" className="text-xs" tickFormatter={(value) => `₹${value / 100000}L`} />
                       <YAxis dataKey="name" type="category" className="text-xs" width={100} />
@@ -346,7 +349,7 @@ export default function AdminAnalytics() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {trafficData.map((source, index) => (
+                {(salesData?.trafficData ?? []).map((source, index) => (
                   <div key={source.source} className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium">{source.source}</span>
@@ -365,6 +368,9 @@ export default function AdminAnalytics() {
                     </div>
                   </div>
                 ))}
+                {(salesData?.trafficData ?? []).length === 0 && (
+                  <p className="text-center text-muted-foreground">No traffic data available</p>
+                )}
               </div>
             </CardContent>
           </Card>
