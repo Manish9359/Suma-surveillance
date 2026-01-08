@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   DollarSign,
   Package,
@@ -6,6 +7,7 @@ import {
   TrendingUp,
   TrendingDown,
   ArrowUpRight,
+  Loader2,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,74 +30,9 @@ import {
   BarChart,
   Bar,
 } from "recharts";
-
-// Mock data - will be replaced with API calls
-const stats = [
-  {
-    title: "Total Revenue",
-    value: "₹12,45,890",
-    change: "+12.5%",
-    trend: "up",
-    icon: DollarSign,
-  },
-  {
-    title: "Total Orders",
-    value: "1,234",
-    change: "+8.2%",
-    trend: "up",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Total Products",
-    value: "156",
-    change: "+3",
-    trend: "up",
-    icon: Package,
-  },
-  {
-    title: "Total Customers",
-    value: "2,847",
-    change: "+15.3%",
-    trend: "up",
-    icon: Users,
-  },
-];
-
-const revenueData = [
-  { month: "Jan", revenue: 45000 },
-  { month: "Feb", revenue: 52000 },
-  { month: "Mar", revenue: 48000 },
-  { month: "Apr", revenue: 61000 },
-  { month: "May", revenue: 55000 },
-  { month: "Jun", revenue: 67000 },
-  { month: "Jul", revenue: 72000 },
-];
-
-const ordersData = [
-  { day: "Mon", orders: 45 },
-  { day: "Tue", orders: 52 },
-  { day: "Wed", orders: 38 },
-  { day: "Thu", orders: 65 },
-  { day: "Fri", orders: 48 },
-  { day: "Sat", orders: 73 },
-  { day: "Sun", orders: 41 },
-];
-
-const recentOrders = [
-  { id: "SST-001234", customer: "Rahul Sharma", total: 8968, status: "DELIVERED", date: "2024-01-15" },
-  { id: "SST-001233", customer: "Priya Singh", total: 15920, status: "SHIPPED", date: "2024-01-15" },
-  { id: "SST-001232", customer: "Amit Kumar", total: 4480, status: "PROCESSING", date: "2024-01-14" },
-  { id: "SST-001231", customer: "Sneha Patel", total: 11328, status: "PENDING", date: "2024-01-14" },
-  { id: "SST-001230", customer: "Vikram Reddy", total: 7960, status: "DELIVERED", date: "2024-01-13" },
-];
-
-const topProducts = [
-  { name: "8 Gang IR Remote & Wi-Fi Touch Switch", sold: 156, revenue: 124192 },
-  { name: "4 Gang IR Remote & Wi-Fi Touch Switch", sold: 142, revenue: 63616 },
-  { name: "12 Gang IR Remote & Wi-Fi Touch Switch", sold: 98, revenue: 110966 },
-  { name: "6 Gang IR Remote & Wi-Fi Touch Switch", sold: 87, revenue: 51852 },
-  { name: "2 Gang Curtain Controller", sold: 76, revenue: 39459 },
-];
+import { Link } from "react-router-dom";
+import { getDashboardAnalytics, getRecentOrders, getTopProducts } from "@/services/api/analyticsService";
+import type { DashboardAnalytics, Order, TopProduct } from "@/services/api/types";
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -115,6 +52,84 @@ const getStatusColor = (status: string) => {
 };
 
 export default function AdminDashboard() {
+  const [analytics, setAnalytics] = useState<DashboardAnalytics | null>(null);
+  const [recentOrders, setRecentOrders] = useState<Order[]>([]);
+  const [topProducts, setTopProducts] = useState<TopProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [analyticsData, ordersData, productsData] = await Promise.all([
+          getDashboardAnalytics(),
+          getRecentOrders(5),
+          getTopProducts(5),
+        ]);
+        setAnalytics(analyticsData);
+        setRecentOrders(ordersData);
+        setTopProducts(productsData);
+      } catch (err) {
+        setError("Failed to load dashboard data. Make sure the backend is running.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 text-center">
+        <p className="text-destructive mb-2">{error}</p>
+        <p className="text-muted-foreground text-sm">
+          Ensure your Spring Boot backend is running at http://localhost:8080
+        </p>
+      </div>
+    );
+  }
+
+  const stats = [
+    {
+      title: "Total Revenue",
+      value: analytics ? `₹${analytics.totalRevenue.toLocaleString()}` : "₹0",
+      change: analytics?.revenueChange ?? "0%",
+      trend: analytics?.revenueChange?.startsWith("+") ? "up" : "down",
+      icon: DollarSign,
+    },
+    {
+      title: "Total Orders",
+      value: analytics?.totalOrders?.toLocaleString() ?? "0",
+      change: analytics?.ordersChange ?? "0%",
+      trend: analytics?.ordersChange?.startsWith("+") ? "up" : "down",
+      icon: ShoppingCart,
+    },
+    {
+      title: "Total Products",
+      value: analytics?.totalProducts?.toLocaleString() ?? "0",
+      change: analytics?.productsChange ?? "0",
+      trend: "up",
+      icon: Package,
+    },
+    {
+      title: "Total Customers",
+      value: analytics?.totalCustomers?.toLocaleString() ?? "0",
+      change: analytics?.customersChange ?? "0%",
+      trend: analytics?.customersChange?.startsWith("+") ? "up" : "down",
+      icon: Users,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
@@ -155,7 +170,7 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={revenueData}>
+                <LineChart data={analytics?.revenueData ?? []}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis dataKey="month" className="text-xs" />
                   <YAxis className="text-xs" />
@@ -187,7 +202,7 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={ordersData}>
+                <BarChart data={analytics?.ordersData ?? []}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis dataKey="day" className="text-xs" />
                   <YAxis className="text-xs" />
@@ -215,12 +230,12 @@ export default function AdminDashboard() {
               <CardTitle>Recent Orders</CardTitle>
               <CardDescription>Latest customer orders</CardDescription>
             </div>
-            <a
-              href="/admin/orders"
+            <Link
+              to="/admin/orders"
               className="text-sm text-primary hover:underline flex items-center"
             >
               View all <ArrowUpRight className="ml-1 h-3 w-3" />
-            </a>
+            </Link>
           </CardHeader>
           <CardContent>
             <Table>
@@ -233,18 +248,26 @@ export default function AdminDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentOrders.map((order) => (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.id}</TableCell>
-                    <TableCell>{order.customer}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className={getStatusColor(order.status)}>
-                        {order.status}
-                      </Badge>
+                {recentOrders.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                      No orders yet
                     </TableCell>
-                    <TableCell className="text-right">₹{order.total.toLocaleString()}</TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  recentOrders.map((order) => (
+                    <TableRow key={order.id}>
+                      <TableCell className="font-medium">{order.trackingNumber}</TableCell>
+                      <TableCell>{order.user?.name ?? "Guest"}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className={getStatusColor(order.status)}>
+                          {order.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">₹{order.total.toLocaleString()}</TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -257,12 +280,12 @@ export default function AdminDashboard() {
               <CardTitle>Top Products</CardTitle>
               <CardDescription>Best selling products this month</CardDescription>
             </div>
-            <a
-              href="/admin/products"
+            <Link
+              to="/admin/products"
               className="text-sm text-primary hover:underline flex items-center"
             >
               View all <ArrowUpRight className="ml-1 h-3 w-3" />
-            </a>
+            </Link>
           </CardHeader>
           <CardContent>
             <Table>
@@ -274,15 +297,23 @@ export default function AdminDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {topProducts.map((product, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium max-w-[200px] truncate">
-                      {product.name}
+                {topProducts.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center text-muted-foreground">
+                      No sales data yet
                     </TableCell>
-                    <TableCell className="text-right">{product.sold}</TableCell>
-                    <TableCell className="text-right">₹{product.revenue.toLocaleString()}</TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  topProducts.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell className="font-medium max-w-[200px] truncate">
+                        {product.name}
+                      </TableCell>
+                      <TableCell className="text-right">{product.sold}</TableCell>
+                      <TableCell className="text-right">₹{product.revenue.toLocaleString()}</TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </CardContent>

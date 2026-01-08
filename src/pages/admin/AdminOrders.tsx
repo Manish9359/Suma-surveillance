@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   Eye,
@@ -10,6 +10,7 @@ import {
   CheckCircle,
   Clock,
   XCircle,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,68 +47,9 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
-// Mock order data
-const mockOrders = [
-  {
-    id: "1",
-    trackingNumber: "SST-001234",
-    customer: { name: "Rahul Sharma", email: "rahul@example.com" },
-    items: [
-      { name: "8 Gang IR Remote & Wi-Fi Touch Switch", quantity: 1, price: 7960 },
-      { name: "4 Gang Touch Switch", quantity: 2, price: 4480 },
-    ],
-    total: 16920,
-    status: "DELIVERED" as const,
-    paymentMethod: "UPI",
-    shippingAddress: "123 MG Road, Bengaluru, Karnataka 560001",
-    createdAt: "2024-01-15T10:30:00Z",
-  },
-  {
-    id: "2",
-    trackingNumber: "SST-001233",
-    customer: { name: "Priya Singh", email: "priya@example.com" },
-    items: [{ name: "12 Gang Touch Switch", quantity: 1, price: 11328 }],
-    total: 11328,
-    status: "SHIPPED" as const,
-    paymentMethod: "Card",
-    shippingAddress: "456 Park Street, Mumbai, Maharashtra 400001",
-    createdAt: "2024-01-15T09:15:00Z",
-  },
-  {
-    id: "3",
-    trackingNumber: "SST-001232",
-    customer: { name: "Amit Kumar", email: "amit@example.com" },
-    items: [{ name: "6 Gang Touch Switch", quantity: 2, price: 5960 }],
-    total: 11920,
-    status: "PROCESSING" as const,
-    paymentMethod: "COD",
-    shippingAddress: "789 Civil Lines, Delhi 110001",
-    createdAt: "2024-01-14T16:45:00Z",
-  },
-  {
-    id: "4",
-    trackingNumber: "SST-001231",
-    customer: { name: "Sneha Patel", email: "sneha@example.com" },
-    items: [{ name: "Curtain Controller", quantity: 3, price: 5192 }],
-    total: 15576,
-    status: "PENDING" as const,
-    paymentMethod: "UPI",
-    shippingAddress: "321 Ring Road, Ahmedabad, Gujarat 380001",
-    createdAt: "2024-01-14T14:20:00Z",
-  },
-  {
-    id: "5",
-    trackingNumber: "SST-001230",
-    customer: { name: "Vikram Reddy", email: "vikram@example.com" },
-    items: [{ name: "8 Gang Dimmer Switch", quantity: 1, price: 7960 }],
-    total: 7960,
-    status: "CANCELLED" as const,
-    paymentMethod: "Card",
-    shippingAddress: "555 Jubilee Hills, Hyderabad, Telangana 500033",
-    createdAt: "2024-01-13T11:00:00Z",
-  },
-];
+import { toast } from "sonner";
+import { getOrders, updateOrderStatus } from "@/services/api/orderService";
+import type { Order } from "@/services/api/types";
 
 type OrderStatus = "PENDING" | "CONFIRMED" | "PROCESSING" | "SHIPPED" | "DELIVERED" | "CANCELLED";
 
@@ -121,23 +63,56 @@ const statusConfig: Record<OrderStatus, { icon: React.ElementType; color: string
 };
 
 export default function AdminOrders() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
-  const [selectedOrder, setSelectedOrder] = useState<typeof mockOrders[0] | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  const filteredOrders = mockOrders.filter((order) => {
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const data = await getOrders();
+      setOrders(data.content ?? []);
+    } catch (error) {
+      toast.error("Failed to load orders. Ensure backend is running.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order.trackingNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.customer.email.toLowerCase().includes(searchQuery.toLowerCase());
+      order.trackingNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.user?.email?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = selectedStatus === "all" || order.status === selectedStatus;
     return matchesSearch && matchesStatus;
   });
 
-  const handleViewOrder = (order: typeof mockOrders[0]) => {
+  const handleViewOrder = (order: Order) => {
     setSelectedOrder(order);
     setIsDetailsOpen(true);
+  };
+
+  const handleStatusUpdate = async (orderId: string, status: OrderStatus) => {
+    try {
+      await updateOrderStatus(orderId, status);
+      toast.success(`Order status updated to ${status}`);
+      fetchOrders();
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder({ ...selectedOrder, status });
+      }
+    } catch (error) {
+      toast.error("Failed to update order status");
+      console.error(error);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -149,6 +124,24 @@ export default function AdminOrders() {
       minute: "2-digit",
     });
   };
+
+  const getStatusCounts = () => {
+    const counts: Record<string, number> = {};
+    Object.keys(statusConfig).forEach((status) => {
+      counts[status] = orders.filter((o) => o.status === status).length;
+    });
+    return counts;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const statusCounts = getStatusCounts();
 
   return (
     <div className="space-y-6">
@@ -169,7 +162,6 @@ export default function AdminOrders() {
         {(["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"] as OrderStatus[]).map(
           (status) => {
             const config = statusConfig[status];
-            const count = mockOrders.filter((o) => o.status === status).length;
             return (
               <Card key={status}>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -179,7 +171,7 @@ export default function AdminOrders() {
                   <config.icon className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{count}</div>
+                  <div className="text-2xl font-bold">{statusCounts[status] ?? 0}</div>
                 </CardContent>
               </Card>
             );
@@ -230,58 +222,75 @@ export default function AdminOrders() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.map((order) => {
-                const status = statusConfig[order.status];
-                return (
-                  <TableRow key={order.id}>
-                    <TableCell className="font-medium">{order.trackingNumber}</TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{order.customer.name}</p>
-                        <p className="text-sm text-muted-foreground">{order.customer.email}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {order.items.length} item{order.items.length > 1 ? "s" : ""}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      ₹{order.total.toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className={status.color}>
-                        <status.icon className="mr-1 h-3 w-3" />
-                        {status.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {formatDate(order.createdAt)}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleViewOrder(order)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>Mark as Processing</DropdownMenuItem>
-                          <DropdownMenuItem>Mark as Shipped</DropdownMenuItem>
-                          <DropdownMenuItem>Mark as Delivered</DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive">
-                            Cancel Order
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {filteredOrders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                    No orders found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredOrders.map((order) => {
+                  const status = statusConfig[order.status as OrderStatus] ?? statusConfig.PENDING;
+                  return (
+                    <TableRow key={order.id}>
+                      <TableCell className="font-medium">{order.trackingNumber}</TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{order.user?.name ?? "Guest"}</p>
+                          <p className="text-sm text-muted-foreground">{order.user?.email ?? ""}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {order.items?.length ?? 0} item{(order.items?.length ?? 0) > 1 ? "s" : ""}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        ₹{order.total.toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className={status.color}>
+                          <status.icon className="mr-1 h-3 w-3" />
+                          {status.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(order.createdAt)}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleViewOrder(order)}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, "PROCESSING")}>
+                              Mark as Processing
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, "SHIPPED")}>
+                              Mark as Shipped
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleStatusUpdate(order.id, "DELIVERED")}>
+                              Mark as Delivered
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => handleStatusUpdate(order.id, "CANCELLED")}
+                            >
+                              Cancel Order
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -303,9 +312,9 @@ export default function AdminOrders() {
                 <span className="text-sm text-muted-foreground">Status:</span>
                 <Badge
                   variant="secondary"
-                  className={statusConfig[selectedOrder.status].color}
+                  className={statusConfig[selectedOrder.status as OrderStatus]?.color ?? ""}
                 >
-                  {statusConfig[selectedOrder.status].label}
+                  {statusConfig[selectedOrder.status as OrderStatus]?.label ?? selectedOrder.status}
                 </Badge>
               </div>
 
@@ -315,9 +324,9 @@ export default function AdminOrders() {
               <div>
                 <h4 className="font-medium mb-2">Customer Information</h4>
                 <div className="text-sm space-y-1">
-                  <p>{selectedOrder.customer.name}</p>
-                  <p className="text-muted-foreground">{selectedOrder.customer.email}</p>
-                  <p className="text-muted-foreground">{selectedOrder.shippingAddress}</p>
+                  <p>{selectedOrder.user?.name ?? "Guest"}</p>
+                  <p className="text-muted-foreground">{selectedOrder.user?.email ?? ""}</p>
+                  <p className="text-muted-foreground">{selectedOrder.shippingAddress?.fullAddress ?? ""}</p>
                 </div>
               </div>
 
@@ -327,14 +336,14 @@ export default function AdminOrders() {
               <div>
                 <h4 className="font-medium mb-2">Order Items</h4>
                 <div className="space-y-2">
-                  {selectedOrder.items.map((item, index) => (
+                  {selectedOrder.items?.map((item, index) => (
                     <div key={index} className="flex justify-between text-sm">
                       <span>
-                        {item.name} × {item.quantity}
+                        {item.productName} × {item.quantity}
                       </span>
                       <span className="font-medium">₹{(item.price * item.quantity).toLocaleString()}</span>
                     </div>
-                  ))}
+                  )) ?? <p className="text-muted-foreground">No items</p>}
                 </div>
                 <Separator className="my-2" />
                 <div className="flex justify-between font-medium">
@@ -349,7 +358,7 @@ export default function AdminOrders() {
               <div>
                 <h4 className="font-medium mb-2">Payment Information</h4>
                 <p className="text-sm text-muted-foreground">
-                  Payment Method: {selectedOrder.paymentMethod}
+                  Payment Method: {selectedOrder.paymentMethod ?? "N/A"}
                 </p>
               </div>
             </div>
@@ -358,7 +367,13 @@ export default function AdminOrders() {
             <Button variant="outline" onClick={() => setIsDetailsOpen(false)}>
               Close
             </Button>
-            <Select>
+            <Select
+              onValueChange={(value) => {
+                if (selectedOrder) {
+                  handleStatusUpdate(selectedOrder.id, value as OrderStatus);
+                }
+              }}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Update Status" />
               </SelectTrigger>
