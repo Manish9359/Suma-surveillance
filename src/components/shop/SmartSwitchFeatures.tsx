@@ -1,14 +1,82 @@
-import { Smartphone, Mic, Shield, Sparkles, Zap, Hand, Palette } from "lucide-react";
+import { useState } from "react";
+import { Smartphone, Mic, Shield, Sparkles, Zap, Hand, Palette, Play, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import smartHomeBanner from "@/assets/features/smart-home-banner.png";
 import howItWorks from "@/assets/features/how-smart-switches-work.png";
 import temperedGlass from "@/assets/features/tempered-glass.png";
 import mobileAppControl from "@/assets/features/mobile-app-control.png";
 import voiceControl from "@/assets/features/voice-control.png";
 import advantagesBanner from "@/assets/features/advantages-banner.png";
+import videoThumbnail from "@/assets/features/video-thumbnail.png";
+
+function VideoSection() {
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  return (
+    <section className="bg-card rounded-2xl overflow-hidden border border-border">
+      <div className="p-8 md:p-12 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold mb-4">
+          How IOTICS Smart Switches Are Made
+        </h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
+          Take a behind-the-scenes look at how IOTICS Smart WiFi Touch Switches are crafted 
+          with care and precision. From design to the finished product, every switch is 
+          engineered in-house using state-of-the-art cloud technology, premium-grade electronics, 
+          and elegant tempered glass panels.
+        </p>
+      </div>
+      
+      <div className="relative aspect-video max-w-4xl mx-auto px-4 pb-8">
+        {isPlaying ? (
+          <div className="relative w-full h-full rounded-xl overflow-hidden shadow-2xl">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full"
+              onClick={() => setIsPlaying(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+            <iframe
+              className="w-full h-full"
+              src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+              title="How IOTICS Smart Switches Are Made"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        ) : (
+          <div 
+            className="relative w-full h-full rounded-xl overflow-hidden shadow-2xl cursor-pointer group"
+            onClick={() => setIsPlaying(true)}
+          >
+            <img
+              src={videoThumbnail}
+              alt="How IOTICS Smart Switches Are Made - Video"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+              <div className="bg-primary text-primary-foreground w-20 h-20 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                <Play className="h-8 w-8 ml-1" fill="currentColor" />
+              </div>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 to-transparent">
+              <p className="text-white font-medium text-lg">Watch the Manufacturing Process</p>
+              <p className="text-white/70 text-sm">See how quality and precision come together</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
 
 export function SmartSwitchFeatures() {
   return (
     <div className="space-y-16 py-12">
+      {/* Video Section */}
+      <VideoSection />
+
       {/* Smart Home Banner Section */}
       <section className="bg-card rounded-2xl overflow-hidden border border-border">
         <div className="grid md:grid-cols-2 gap-8 items-center">
