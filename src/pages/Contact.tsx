@@ -1,0 +1,258 @@
+import { useState } from "react";
+import { Phone, Mail, MapPin, Clock, Send } from "lucide-react";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
+import { SEOHead, localBusinessSchema, generateBreadcrumbSchema } from "@/components/seo/SEOHead";
+
+export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Simulate form submission
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    toast({
+      title: "Message Sent!",
+      description: "We'll get back to you within 24 hours.",
+    });
+
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      subject: "",
+      message: "",
+    });
+    setIsSubmitting(false);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const contactInfo = [
+    {
+      icon: Phone,
+      title: "Phone",
+      details: ["+91 9011333736"],
+      href: "tel:+919011333736",
+    },
+    {
+      icon: Mail,
+      title: "Email",
+      details: ["support@sumasurveillance.com", "sales@sumasurveillance.com"],
+      href: "mailto:sumacctvservices@gmail.com",
+    },
+    {
+      icon: MapPin,
+      title: "Address",
+      details: ["Suma Surveillance Tech", "Pune, Maharashtra, India"],
+      href: "https://www.google.com/maps/place/Suma+Surveillance+Tech+Pune/@18.6001327,73.813759,661m/data=!3m2!1e3!4b1!4m6!3m5!1s0x3bc2b924c4930dab:0x902a5c7597550e8a!8m2!3d18.6001327!4d73.813759!16s%2Fg%2F11m759zzv_?entry=ttu&g_ep=EgoyMDI1MTIwOS4wIKXMDSoASAFQAw%3D%3D",
+    },
+    {
+      icon: Clock,
+      title: "Business Hours",
+      details: ["Mon - Sat: 9:00 AM - 7:00 PM", "Sunday: Closed"],
+      href: "#",
+    },
+  ];
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Contact Us", url: "/contact" },
+  ]);
+
+  return (
+    <>
+      <SEOHead
+        title="Contact Suma Surveillance Tech | Smart Switch Support Pune"
+        description="Get in touch with Suma Surveillance Tech for IOTICS smart WiFi switches, home automation products & customer support. Call +91 9011333736 or visit us in Pune."
+        canonicalUrl="/contact"
+        keywords="contact Suma Surveillance Tech, smart switch support, IOTICS dealer contact, home automation Pune"
+        structuredData={[localBusinessSchema, breadcrumbSchema]}
+      />
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-1">
+          <div className="container mx-auto px-4 py-12">
+            <section id="about" className="mb-10 scroll-mt-28" aria-labelledby="about-heading">
+              <div className="bg-card border border-border rounded-xl p-6 md:p-8">
+                <h2 id="about-heading" className="text-2xl font-semibold mb-2">About Us</h2>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong>Suma Surveillance Tech</strong> is an authorized dealer of <strong>IOTICS Smart Switches</strong>, offering genuine products and support for smart home automation.
+                </p>
+              </div>
+            </section>
+
+            {/* Header */}
+            <header className="text-center mb-12">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4">Contact Us</h1>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Have questions about our smart switches or need assistance? We're here to help!
+                Reach out to us through any of the channels below.
+              </p>
+            </header>
+
+            <div className="grid lg:grid-cols-2 gap-12">
+              {/* Contact Form */}
+              <section className="bg-card border border-border rounded-xl p-6 md:p-8" aria-labelledby="contact-form-heading">
+                <h2 id="contact-form-heading" className="text-2xl font-semibold mb-6">Send us a Message</h2>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Full Name *</Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Your name"
+                        required
+                        autoComplete="name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="your@email.com"
+                        required
+                        autoComplete="email"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="+91 XXXXX XXXXX"
+                        autoComplete="tel"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="subject">Subject *</Label>
+                      <Input
+                        id="subject"
+                        name="subject"
+                        value={formData.subject}
+                        onChange={handleChange}
+                        placeholder="How can we help?"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Message *</Label>
+                    <Textarea
+                      id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      placeholder="Tell us more about your inquiry..."
+                      rows={5}
+                      required
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full gap-2" disabled={isSubmitting}>
+                    <Send className="h-4 w-4" aria-hidden="true" />
+                    {isSubmitting ? "Sending..." : "Send Message"}
+                  </Button>
+                </form>
+              </section>
+
+              {/* Contact Info */}
+              <section className="space-y-6" aria-labelledby="contact-info-heading">
+                <h2 id="contact-info-heading" className="text-2xl font-semibold mb-6">Get in Touch</h2>
+                
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {contactInfo.map((info) => (
+                    <a
+                      key={info.title}
+                      href={info.href}
+                      className="bg-card border border-border rounded-xl p-5 hover:shadow-card-hover transition-all group"
+                      aria-label={`${info.title}: ${info.details.join(", ")}`}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                          <info.icon className="h-5 w-5" aria-hidden="true" />
+                        </div>
+                        <div>
+                          <h3 className="font-medium mb-1">{info.title}</h3>
+                          {info.details.map((detail, index) => (
+                            <p key={index} className="text-sm text-muted-foreground">
+                              {detail}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+
+                {/* WhatsApp CTA */}
+                <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white">
+                  <h3 className="text-xl font-semibold mb-2">Quick Response on WhatsApp</h3>
+                  <p className="text-green-100 mb-4">
+                    Get instant support and product inquiries via WhatsApp
+                  </p>
+                  <a
+                    href="https://api.whatsapp.com/send?phone=%2B919011333736&text=Hello%2C%20I%20would%20like%20to%20know%20more%20about%20your%20Smart%20Switches."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Chat with us on WhatsApp"
+                  >
+                    <Button variant="secondary" className="bg-white text-green-600 hover:bg-green-50">
+                      Chat on WhatsApp
+                    </Button>
+                  </a>
+                </div>
+
+                {/* FAQ Link */}
+                <div className="bg-muted rounded-xl p-6">
+                  <h3 className="font-medium mb-2">Frequently Asked Questions</h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Find answers to common questions about our products, shipping, and returns.
+                  </p>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href="/about#faq-heading">View FAQ</a>
+                  </Button>
+                </div>
+              </section>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    </>
+  );
+}
