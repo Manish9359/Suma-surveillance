@@ -89,29 +89,7 @@ export default function About() {
             </div>
           </section>
 
-          {/* Dealer certificate */}
-          <section className="container mx-auto px-4 pb-10 sm:pb-14" aria-labelledby="dealer-certificate">
-            <div className="bg-card border border-border rounded-xl p-6 sm:p-8">
-              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-                <div>
-                  <h2 id="dealer-certificate" className="text-xl font-semibold">Dealer Certificate</h2>
-                  <p className="mt-2 text-muted-foreground">
-                    We are an authorized dealer of IOTICS smart switches. Share your certificate
-                    file and we can display it here.
-                  </p>
-                </div>
-              </div>
 
-              <div className="mt-6 rounded-xl border border-border bg-muted p-6">
-                <div className="text-center">
-                  <p className="font-medium">Certificate placeholder</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Upload an image/PDF of the dealer certificate to replace this section.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
 
           {/* FAQs */}
           <section className="container mx-auto px-4 pb-14" aria-labelledby="faq-heading">
