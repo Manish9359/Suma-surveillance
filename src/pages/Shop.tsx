@@ -15,6 +15,7 @@ import { useWishlist } from "@/context/WishlistContext";
 import { toast } from "@/hooks/use-toast";
 import { SEOHead, generateBreadcrumbSchema } from "@/components/seo/SEOHead";
 import { ColorVariants } from "@/components/product/ColorVariants";
+import { SmartSwitchFeatures } from "@/components/shop/SmartSwitchFeatures";
 
 function ProductCard({ product }: { product: Product }) {
   const { addItem, openCart } = useCart();
@@ -507,6 +508,9 @@ export default function Shop() {
                 )}
               </section>
             </div>
+
+            {/* Smart Switch Features Section */}
+            <SmartSwitchFeatures />
           </div>
         </main>
         <Footer />
