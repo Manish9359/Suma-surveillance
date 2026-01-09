@@ -18,12 +18,28 @@ const faqs = [
     answer: "We can guide your electrician on wiring basics and setup. For complex requirements, we'll suggest the right configuration before purchase."
   },
   {
+    question: "Do smart switches require internet to work?",
+    answer: "They use WiFi for remote access (app/voice control). However, they function perfectly as normal touch switches manually even without an internet connection."
+  },
+  {
+    question: "Can I control them with my phone or voice?",
+    answer: "Yes! You can control everything via the IOTICS mobile app (Android/iOS) or use voice commands with Amazon Alexa, Google Assistant, and Siri."
+  },
+  {
+    question: "Will it fit my existing switch box?",
+    answer: "Yes, IOTICS switches are designed to retrofit into standard Indian switch boxes without requiring major civil work or additional rewiring."
+  },
+  {
+    question: "How does it help with security?",
+    answer: "You can schedule lights to turn on/off at specific times to simulate presence when you're away, adding an extra layer of security to your home."
+  },
+  {
     question: "What if I need support after buying?",
     answer: "You can contact us for troubleshooting, usage help, and service/warranty assistance."
   },
   {
     question: "Which switch should I choose for my home?",
-    answer: "Tell us your room-wise load (lights/fans) and requirements (WiFi/scene control), and we'll recommend the best-fit IOTICS model."
+    answer: "Tell us your room/house layout and requirements (lights/fans/heavy appliances), and we'll recommend the best-fit IOTICS model configuration."
   }
 ];
 
