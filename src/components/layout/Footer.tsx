@@ -13,7 +13,7 @@ const footerLinks = {
     { label: "Water Level Controller", href: "/shop" },
   ],
   support: [
-    { label: "Help Center", href: "/contact" },
+    { label: "Help Center", href: "/help" },
     { label: "Track Order", href: "/orders" },
     { label: "Shipping Info", href: "/contact" },
     { label: "Returns", href: "/contact" },
