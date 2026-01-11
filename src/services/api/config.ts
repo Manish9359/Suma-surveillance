@@ -1,6 +1,6 @@
 // API Configuration for Spring Boot Backend
 // Change this URL to match your Spring Boot server
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8081/api";
 
 // Request timeout in milliseconds
 export const REQUEST_TIMEOUT = 30000;
