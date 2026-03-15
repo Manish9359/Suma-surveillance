@@ -164,9 +164,10 @@ export default function ProductDetail() {
               <section className="space-y-4" aria-label="Product images">
                 <div className="relative aspect-square bg-muted rounded-xl overflow-hidden">
                   <img
+                    key={`${product.id}-${selectedColor}-${selectedImage}`}
                     src={product.colorImages?.[selectedColor] || images[selectedImage]}
                     alt={`${product.name} - ${selectedColor} - ${product.category} smart switch by IOTICS`}
-                    className="w-full h-full object-cover transition-all duration-300"
+                    className="w-full h-full object-cover animate-fade-in"
                     itemProp="image"
                     loading="eager"
                     style={{
