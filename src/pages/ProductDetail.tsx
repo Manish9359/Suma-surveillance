@@ -11,7 +11,21 @@ import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { toast } from "@/hooks/use-toast";
 import { SEOHead, generateProductSchema, generateBreadcrumbSchema } from "@/components/seo/SEOHead";
-import { ColorVariants } from "@/components/product/ColorVariants";
+import { ColorVariants, colorOptions } from "@/components/product/ColorVariants";
+
+function getColorFilter(colorName: string): string {
+  switch (colorName) {
+    case "White":
+      return "brightness(1.6) saturate(0.1)";
+    case "Blue":
+      return "brightness(0.9) saturate(1.5) hue-rotate(200deg)";
+    case "Gray":
+      return "brightness(1.1) saturate(0.2)";
+    case "Black":
+    default:
+      return "none";
+  }
+}
 
 const mockReviews = [
   {
@@ -150,11 +164,14 @@ export default function ProductDetail() {
               <section className="space-y-4" aria-label="Product images">
                 <div className="relative aspect-square bg-muted rounded-xl overflow-hidden">
                   <img
-                    src={images[selectedImage]}
-                    alt={`${product.name} - ${product.category} smart switch by IOTICS`}
-                    className="w-full h-full object-cover"
+                    src={product.colorImages?.[selectedColor] || images[selectedImage]}
+                    alt={`${product.name} - ${selectedColor} - ${product.category} smart switch by IOTICS`}
+                    className="w-full h-full object-cover transition-all duration-300"
                     itemProp="image"
                     loading="eager"
+                    style={{
+                      filter: !product.colorImages?.[selectedColor] ? getColorFilter(selectedColor) : 'none',
+                    }}
                   />
                   {product.badge && (
                     <div className="absolute top-4 left-4 flex flex-col gap-2">
