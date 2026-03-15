@@ -150,11 +150,14 @@ export default function ProductDetail() {
               <section className="space-y-4" aria-label="Product images">
                 <div className="relative aspect-square bg-muted rounded-xl overflow-hidden">
                   <img
-                    src={images[selectedImage]}
-                    alt={`${product.name} - ${product.category} smart switch by IOTICS`}
-                    className="w-full h-full object-cover"
+                    src={product.colorImages?.[selectedColor] || images[selectedImage]}
+                    alt={`${product.name} - ${selectedColor} - ${product.category} smart switch by IOTICS`}
+                    className="w-full h-full object-cover transition-all duration-300"
                     itemProp="image"
                     loading="eager"
+                    style={{
+                      filter: !product.colorImages?.[selectedColor] ? getColorFilter(selectedColor) : 'none',
+                    }}
                   />
                   {product.badge && (
                     <div className="absolute top-4 left-4 flex flex-col gap-2">
